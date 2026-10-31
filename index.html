@@ -1,0 +1,449 @@
+<!doctype html>
+<html lang="sw">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#b91c1c">
+<meta name="description" content="MO TEC Money Manager - rekodi mapato na matumizi offline.">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="64x64" href="mo-tec-64-v2.png">
+<link rel="apple-touch-icon" sizes="180x180" href="mo-tec-180-v2.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="MO TEC Money">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>MO TEC Money Manager</title>
+<style>
+:root{--red:#b91c1c;--ink:#111827;--muted:#6b7280;--bg:#f3f4f6;--card:#fff;--green:#15803d;--line:#e5e7eb;--field:#fff;--field-border:#d1d5db;--soft:#e5e7eb}
+[data-theme=dark]{--ink:#f9fafb;--muted:#a7b0bf;--bg:#0f172a;--card:#182235;--green:#4ade80;--line:#334155;--field:#0b1220;--field-border:#475569;--soft:#263449}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px system-ui,-apple-system,Segoe UI,sans-serif}
+.app-shell[hidden]{display:none!important}.app-shell{position:relative;isolation:isolate;min-height:100vh;overflow:hidden}
+.brand-watermark{position:fixed;z-index:0;pointer-events:none;width:min(62vw,460px);height:auto;right:3%;top:26%;opacity:.07;mix-blend-mode:multiply;filter:grayscale(1) contrast(1.15) drop-shadow(0 28px 40px #7f1d1d22);clip-path:inset(0 100% 0 0);animation:logo-draw 7s ease-in-out infinite,logo-float 12s ease-in-out infinite;transform-origin:center}
+[data-theme=dark] .brand-watermark{mix-blend-mode:screen;filter:grayscale(1) contrast(1.2) brightness(1.35) drop-shadow(0 28px 40px #0008)}
+@keyframes logo-draw{0%{clip-path:inset(0 100% 0 0);opacity:.015}18%{clip-path:inset(0 62% 0 0);opacity:.04}42%{clip-path:inset(0 18% 0 0);opacity:.075}58%,82%{clip-path:inset(0 0 0 0);opacity:.09}100%{clip-path:inset(0 100% 0 0);opacity:.015}}
+@keyframes logo-float{0%,100%{transform:translate3d(0,0,0) rotate(-2deg) scale(1)}50%{transform:translate3d(-12px,-18px,0) rotate(2deg) scale(1.035)}}
+header,main{position:relative;z-index:1}header{display:flex;align-items:center;gap:14px;background:linear-gradient(135deg,#7f1d1d,#b91c1c 58%,#dc2626);color:white;padding:18px;border-radius:0 0 24px 24px;box-shadow:0 12px 32px #7f1d1d24}
+.brand-logo{width:64px;height:64px;object-fit:contain;border-radius:0;background:transparent;box-shadow:none;filter:drop-shadow(0 4px 10px #450a0a55);flex:none}
+header small{opacity:.85}h1{font-size:23px;margin:5px 0}main{max-width:760px;margin:auto;padding:14px}.header-actions{margin-left:auto;display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end}.mini-select,.icon-toggle,.header-actions .secondary{width:auto;margin:0;padding:6px 8px;border-radius:9px;border:1px solid #ffffff55;background:#ffffff22;color:white;font-size:12px;line-height:1.1}.mini-select{max-width:78px}.mini-select option{color:#111827}.icon-toggle{min-width:32px;min-height:30px}.header-actions .secondary{min-height:30px;font-weight:700}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 14px}
+button,select,input{font:inherit}button{border:0;border-radius:12px;padding:12px 14px;font-weight:700;cursor:pointer}
+.tab{background:var(--soft);color:var(--ink)}.tab.active{background:var(--ink);color:var(--card)}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.card,.panel{background:var(--card);border-radius:16px;padding:14px;box-shadow:0 2px 10px #1118270b}
+.card span{display:block;color:var(--muted);font-size:12px}.card strong{display:block;font-size:clamp(14px,3.4vw,20px);margin-top:6px;overflow-wrap:anywhere}
+.panel{margin-bottom:14px}.panel h2{font-size:17px;margin:0 0 12px}
+form{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+label{font-size:13px;color:var(--muted);display:block}input,select{width:100%;margin-top:5px;padding:11px;border:1px solid var(--field-border);border-radius:10px;background:var(--field);color:var(--ink)}
+.wide{grid-column:1/-1}.primary{background:var(--red);color:white}.secondary{background:var(--soft);color:var(--ink)}
+.note{font-size:12px;color:var(--muted);line-height:1.45}.transaction{display:flex;justify-content:space-between;gap:10px;padding:12px 0;border-bottom:1px solid var(--line)}.transaction:last-child{border-bottom:0}
+.transaction small{display:block;color:var(--muted);margin-top:3px}.amount{font-weight:800;text-align:right;white-space:nowrap}.income{color:var(--green)}.expense{color:var(--red)}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.empty{color:var(--muted);padding:14px 0;text-align:center}
+.status{min-height:1.4em;font-size:13px;color:var(--muted)}.status.error{color:var(--red)}.filters{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}.report-row{padding:9px 0;border-bottom:1px solid var(--line)}.report-row:last-child{border-bottom:0}.report-row small{display:block;color:var(--muted);margin-top:3px}
+.chart-wrap{height:220px;position:relative}.chart-wrap canvas{width:100%;height:100%;display:block}.budget-alert{padding:10px 12px;border-radius:12px;background:#fef3c7;color:#92400e;font-weight:700}.budget-alert.ok{background:#dcfce7;color:#166534}.manager-grid{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end}.category-list{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:7px 10px;background:var(--field);font-size:13px}.chip button{padding:0 5px;border-radius:999px}.receipt-preview{max-width:120px;max-height:90px;border-radius:8px;margin-top:8px;display:block}.role-badge{display:inline-block;padding:5px 8px;border-radius:999px;background:var(--soft);font-size:12px;color:var(--ink)}
+.collapsible-panel > summary{font-size:17px;font-weight:750;cursor:pointer;list-style:none}.collapsible-panel > summary::-webkit-details-marker{display:none}.collapsible-panel > summary::after{content:"+";float:right;font-size:20px;line-height:1}.collapsible-panel[open] > summary{margin-bottom:12px}.collapsible-panel[open] > summary::after{content:"−"}.insights-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.insight{border:1px solid var(--line);border-radius:12px;padding:12px;background:var(--field)}.insight span{display:block;color:var(--muted);font-size:12px}.insight strong{display:block;margin-top:5px;font-size:18px;overflow-wrap:anywhere}.cash-score{font-size:32px!important}.advanced-filters{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:10px 0}
+.developer-panel{border:1px solid var(--line)}.developer-panel summary{font-weight:750;cursor:pointer}.developer-panel .actions{margin-top:12px}
+.lock-screen[hidden]{display:none!important}.lock-screen{min-height:100vh;display:grid;place-items:center;padding:20px;background:radial-gradient(circle at 50% 18%,#fee2e2,transparent 38%),var(--bg)}
+.lock-card{width:min(100%,420px);background:var(--card);border-radius:24px;padding:24px;box-shadow:0 16px 48px #11182718;text-align:center}
+.lock-logo{width:82px;height:82px;object-fit:contain;border-radius:0;background:transparent;box-shadow:none;filter:drop-shadow(0 5px 14px #11182730)}
+.lock-card h1{font-size:23px}.lock-card p{color:var(--muted);font-size:14px;line-height:1.5}
+.lock-fields{display:grid;gap:10px;text-align:left}.lock-fields[hidden],.pattern-board[hidden]{display:none!important}
+.pattern-board{position:relative;width:min(78vw,300px);aspect-ratio:1;margin:18px auto;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);touch-action:none;user-select:none}
+.pattern-lines{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.pattern-lines polyline{fill:none;stroke:var(--red);stroke-width:5;stroke-linecap:round;stroke-linejoin:round}
+.pattern-dot{position:relative;z-index:1;align-self:center;justify-self:center;width:46px;height:46px;border-radius:50%;padding:0;background:transparent;border:2px solid transparent;touch-action:none}
+.pattern-dot::after{content:"";position:absolute;width:16px;height:16px;left:50%;top:50%;transform:translate(-50%,-50%);border-radius:50%;background:#9ca3af;transition:background .12s,transform .12s}
+.pattern-dot.selected{border-color:#fecaca}.pattern-dot.selected::after{background:var(--red);transform:translate(-50%,-50%) scale(1.2)}
+.lock-card .primary,.lock-card .secondary{width:100%;margin-top:8px}.lock-error{min-height:1.4em;color:var(--red)!important;font-weight:650}
+.developer-results{font-size:13px;line-height:1.6;white-space:pre-line;color:var(--muted);overflow-wrap:anywhere}
+@media(max-width:560px){header{align-items:flex-start;flex-wrap:wrap}.header-actions{width:100%;margin-left:0;justify-content:flex-start;gap:5px}.mini-select,.icon-toggle,.header-actions .secondary{font-size:11px;padding:5px 7px}.mini-select{max-width:70px}.icon-toggle{min-width:30px;min-height:28px}.header-actions .secondary{min-height:28px}}
+@media(max-width:430px){.cards,.insights-grid,.advanced-filters{grid-template-columns:1fr}.card:last-child{grid-column:1/-1}form{grid-template-columns:1fr}.wide{grid-column:auto}}
+@media(prefers-reduced-motion:reduce){.brand-watermark{animation:none;clip-path:none;opacity:.05}}
+
+.order-card{border:1px solid var(--line);border-radius:14px;padding:14px;margin:12px 0}.order-card h3{margin:0 0 8px;font-size:16px}.order-card .actions button{font-size:13px;padding:10px}.metric-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.metric-grid small{display:block;color:var(--muted)}.metric-grid strong{display:block;overflow-wrap:anywhere}.warning{color:#b45309}.success{color:var(--green)}dialog{border:1px solid var(--line);border-radius:18px;background:var(--card);color:var(--ink);width:min(94vw,600px);max-height:90vh;overflow:auto}dialog::backdrop{background:#0008}.ledger-row{border-bottom:1px solid var(--line);padding:8px 0;font-size:13px}.backup-banner{padding:10px;background:var(--soft);border-radius:10px}.doc-only{display:none}@media(max-width:430px){.order-card .actions{display:grid;grid-template-columns:1fr 1fr}.metric-grid{grid-template-columns:1fr 1fr}}
+</style>
+<link rel="stylesheet" href="ux.css">
+<link rel="stylesheet" href="luxury.css">
+</head>
+<body>
+<section id="lockScreen" class="lock-screen" aria-labelledby="lockTitle">
+<div class="lock-card">
+<img class="lock-logo app-logo" src="mo-tec-192-v2.png" alt="Logo ya MO TEC">
+<h1 id="lockTitle">MO TEC Money Manager</h1>
+<p id="lockInstructions">Chora pattern ya kufungua app. Tumia angalau nukta nne tofauti.</p>
+<div id="securityChoice" class="lock-fields" hidden>
+<label><span data-i18n="securityTypeLabel">Aina ya ulinzi</span>
+<select id="securityType">
+<option value="pin">PIN / password</option>
+<option value="pattern">Pattern</option>
+<option value="none" data-i18n="noSecurity">Bila ulinzi</option>
+</select></label>
+<p class="note" data-i18n="securityHint">Unaweza kubadilisha chaguo baadaye kwenye Panel ya Developer.</p>
+</div>
+<div id="patternBoard" class="pattern-board" role="group" aria-label="Chora pattern ya nukta nne au zaidi">
+<svg class="pattern-lines" viewBox="0 0 300 300" aria-hidden="true"><polyline id="patternLine" points=""></polyline></svg>
+<button class="pattern-dot" type="button" data-dot="0" aria-label="Nukta 1"></button><button class="pattern-dot" type="button" data-dot="1" aria-label="Nukta 2"></button><button class="pattern-dot" type="button" data-dot="2" aria-label="Nukta 3"></button>
+<button class="pattern-dot" type="button" data-dot="3" aria-label="Nukta 4"></button><button class="pattern-dot" type="button" data-dot="4" aria-label="Nukta 5"></button><button class="pattern-dot" type="button" data-dot="5" aria-label="Nukta 6"></button>
+<button class="pattern-dot" type="button" data-dot="6" aria-label="Nukta 7"></button><button class="pattern-dot" type="button" data-dot="7" aria-label="Nukta 8"></button><button class="pattern-dot" type="button" data-dot="8" aria-label="Nukta 9"></button>
+</div>
+<div id="pinFields" class="lock-fields" hidden>
+<label><span data-i18n="pinLabel">PIN au password</span><input id="pinInput" type="password" autocomplete="current-password" minlength="4" placeholder="Angalau herufi/namba 4" data-i18n-placeholder="pinPlaceholder"></label>
+<label id="pinConfirmWrap" hidden><span data-i18n="pinConfirm">Rudia PIN au password</span><input id="pinConfirmInput" type="password" autocomplete="new-password" minlength="4" placeholder="Rudia hapa" data-i18n-placeholder="pinConfirmPlaceholder"></label>
+</div>
+<button id="patternDoneBtn" class="primary" type="button">Endelea</button>
+<p id="lockMessage" class="lock-error" role="status" aria-live="polite"></p>
+<button id="biometricBtn" class="primary" type="button" hidden data-i18n="biometricUnlock">Fungua kwa fingerprint / biometriki</button>
+<button id="forgotSecurityBtn" class="secondary" type="button" hidden data-i18n="forgotSecurity">Nimesahau PIN / pattern</button>
+<p class="note" data-i18n="biometricNote">Biometriki hutegemea uwezo wa simu na browser; simu inaweza kutumia fingerprint, uso au PIN yake.</p>
+</div>
+</section>
+<div id="appShell" class="app-shell" hidden>
+<img class="brand-watermark" src="mo-tec-512-v2.png" alt="" aria-hidden="true">
+<header><img class="brand-logo app-logo" src="mo-tec-192-v2.png" alt="Logo ya MO TEC"><div><small>MO TEC DIGITAL PRINTING</small><h1>Money Manager</h1><div data-i18n="tagline">Rekodi mapato na matumizi papo hapo</div></div><div class="header-actions"><select id="languageSelect" class="mini-select" aria-label="Language"><option value="sw">Kisw</option><option value="en">Eng</option><option value="zh">中文</option></select><button id="themeToggle" class="icon-toggle" type="button" aria-label="Theme">☀</button><button id="lockAppBtn" class="secondary" type="button" data-i18n="lockApp">Funga app</button></div></header>
+<main>
+<div class="tabs">
+<div class="business-brand" aria-label="MO TEC BUSINESS"><span class="business-brand-name">MO TEC BUSINESS</span><span class="business-brand-caption">PRINT · CREATE · GROW</span></div>
+
+</div>
+<section class="cards">
+<div class="card"><span data-i18n="income">Mapato</span><strong id="income">TSh 0</strong></div>
+<div class="card"><span data-i18n="expense">Matumizi</span><strong id="expense">TSh 0</strong></div>
+<div class="card"><span data-i18n="balance">Salio</span><strong id="balance">TSh 0</strong></div>
+</section>
+<details class="panel collapsible-panel" id="insightsPanel">
+<summary data-i18n="insightsTitle">Business Insights</summary>
+<div class="insights-grid">
+<div class="insight"><span>Fedha zilizoingia − zilizotoka (mwezi)</span><strong id="insightProfit">TSh 0</strong></div>
+<div class="insight"><span data-i18n="dailyAverage">Wastani wa mapato kwa siku</span><strong id="insightDailyAvg">TSh 0</strong></div>
+<div class="insight"><span data-i18n="topExpenseCategory">Category yenye matumizi mengi</span><strong id="insightTopExpense">-</strong></div>
+<div class="insight"><span data-i18n="bestIncomeCategory">Best income category</span><strong id="insightTopIncome">-</strong></div>
+<div class="insight"><span data-i18n="bestSalesDay">Siku yenye mapato makubwa</span><strong id="insightBestDay">-</strong></div>
+<div class="insight"><span data-i18n="weekTrend">Mabadiliko dhidi ya wiki iliyopita</span><strong id="insightWeekTrend">-</strong></div>
+<div class="insight"><span data-i18n="cashHealthScore">Cash health score</span><strong id="insightCashScore" class="cash-score">0</strong></div>
+<div class="insight"><span data-i18n="insightTip">Ushauri wa haraka</span><strong id="insightTip">-</strong></div>
+</div>
+</details>
+<details class="panel collapsible-panel" id="chartsPanel">
+<summary data-i18n="chartsTitle">Dashboard charts</summary>
+<label><span data-i18n="chartModeLabel">Kipimo cha graph</span><select id="chartMode"><option value="day" data-i18n="chartDay">Siku</option><option value="week" data-i18n="chartWeek">Wiki</option><option value="month" data-i18n="chartMonth">Mwezi</option></select></label>
+<div class="chart-wrap"><canvas id="moneyChart" width="680" height="220"></canvas></div>
+<p id="budgetAlert" class="budget-alert ok" data-i18n="budgetNotSet">Bajeti haijawekwa kwa mwezi huu.</p>
+</details>
+<section class="panel">
+<h2 data-i18n="recordTitle">+ Rekodi muamala</h2>
+<form id="transactionForm">
+<label>Jina la mteja (si lazima)<input id="transactionCustomer" maxlength="80" list="customerSuggestions" placeholder="Chagua mteja au andika jina jipya"></label>
+<label>Bidhaa / huduma<input id="transactionProduct" maxlength="120" placeholder="Mf. Jezi printing"></label>
+<label><span data-i18n="typeLabel">Aina ya muamala</span><select id="type"><option value="income" data-i18n="moneyIn">Pesa imeingia</option><option value="expense" data-i18n="moneyOut">Pesa imetoka</option></select></label>
+<label><span data-i18n="amountLabel">Kiasi (TSh)</span><input id="amount" type="number" min="1" step="1" placeholder="Mf. 15000" data-i18n-placeholder="amountPlaceholder" required></label>
+<label><span data-i18n="categoryLabel">Kategoria</span><select id="category"><option>Mauzo</option><option>Huduma ya printing</option><option>Malighafi</option><option>Usafiri</option><option>Chakula</option><option>Umeme</option><option>Kodi</option><option>Mshahara</option><option>Matumizi mengine</option><option>Mapato mengine</option></select></label>
+<label><span data-i18n="dateLabel">Tarehe na muda</span><input id="date" type="datetime-local" required></label>
+<label class="wide"><span data-i18n="descriptionLabel">Maelezo (si lazima)</span><input id="description" maxlength="120" placeholder="Mf. Printing business card" data-i18n-placeholder="descriptionPlaceholder"></label>
+<label class="wide"><span data-i18n="receiptLabel">Receipt / risiti</span><input id="receipt" type="file" accept="image/*" capture="environment"></label>
+<img id="receiptPreview" class="receipt-preview" alt="" hidden>
+<button class="primary wide" type="submit" data-i18n="saveRecord">HIFADHI MUAMALA</button>
+<button class="secondary wide" id="cancelEditBtn" type="button" hidden data-i18n="cancelEdit">Ghairi kuhariri</button>
+</form>
+<p id="status" class="status" role="status" aria-live="polite"></p>
+<p class="note" data-i18n="localNote">Taarifa huhifadhiwa kwenye kifaa hiki pekee. Usifute data ya browser bila kutengeneza nakala kwanza.</p>
+</section>
+<details class="panel collapsible-panel" id="ordersPanel">
+<summary data-i18n="ordersTitle">Oda za Wateja</summary>
+<form id="orderForm">
+<label><span data-i18n="customerName">Jina la mteja</span><input id="orderCustomer" maxlength="80" required></label>
+<label><span data-i18n="customerPhone">Simu/mawasiliano</span><input id="orderPhone" maxlength="40" placeholder="07..."></label>
+<label class="wide"><span data-i18n="orderWork">Kazi/huduma</span><input id="orderWork" maxlength="120" placeholder="Mf. Business cards" required></label>
+<label><span data-i18n="orderAmount">Kiasi (TSh)</span><input id="orderAmount" type="number" min="0" step="1"></label>
+<label><span data-i18n="orderDeposit">Deposit (TSh)</span><input id="orderDeposit" type="number" min="0" step="1"></label>
+<label><span data-i18n="orderDue">Deadline</span><input id="orderDue" type="date"></label>
+<label><span data-i18n="orderStatus">Status</span><select id="orderStatus"><option value="pending" data-i18n="statusPending">Inasubiri</option><option value="progress" data-i18n="statusProgress">Inaendelea</option><option value="done" data-i18n="statusDone">Imekamilika</option><option value="delivered" data-i18n="statusDelivered">Imekabidhiwa</option><option value="cancelled" data-i18n="statusCancelled">Imefutwa</option></select></label>
+<label class="wide"><span data-i18n="orderNotes">Maelezo</span><input id="orderNotes" maxlength="160"></label>
+<button class="primary wide" type="submit" data-i18n="saveOrder">Hifadhi oda</button>
+<button class="secondary wide" id="cancelOrderEditBtn" type="button" hidden data-i18n="cancelEdit">Ghairi kuhariri</button>
+</form>
+<p id="orderStatusMessage" class="status" role="status" aria-live="polite"></p>
+<div id="ordersList"></div>
+</details>
+<details class="panel collapsible-panel" id="managerPanel">
+<summary>Bajeti na kategoria</summary>
+<div class="manager-grid">
+<label><span data-i18n="monthlyBudgetLabel">Bajeti ya mwezi (TSh)</span><input id="monthlyBudget" type="number" min="0" step="1" placeholder="Mf. 500000" data-i18n-placeholder="budgetPlaceholder"></label>
+<button class="primary" id="saveBudgetBtn" type="button" data-i18n="saveBudget">Hifadhi</button>
+</div>
+<div class="manager-grid" style="margin-top:10px">
+<label><span data-i18n="addCategoryLabel">Ongeza category</span><input id="newCategory" maxlength="40" placeholder="Mf. Matengenezo" data-i18n-placeholder="categoryPlaceholder"></label>
+<button class="secondary" id="addCategoryBtn" type="button" data-i18n="addCategory">Ongeza</button>
+</div>
+<div id="categoryList" class="category-list"></div>
+<div class="manager-grid" style="margin-top:10px">
+<label>Mmiliki wa kifaa<select id="userRole" disabled><option value="admin">Mmiliki</option></select></label>
+<span id="roleBadge" class="role-badge">Admin</span>
+</div>
+<p class="note" >Toleo hili ni la mmiliki mmoja. Akaunti tofauti za wafanyakazi na ruhusa halisi zinahitaji seva; kuchagua role kwenye kifaa hakutoi ulinzi huo.</p>
+</details>
+<section class="panel">
+<h2 data-i18n="historyTitle">Historia ya miamala</h2>
+<label><span data-i18n="periodLabel">Kipindi</span>
+<select id="period">
+<option value="all" data-i18n="allTime">Muda wote</option><option value="month" data-i18n="thisMonth">Mwezi huu</option><option value="week" data-i18n="thisWeek">Wiki hii</option><option value="custom" data-i18n="customDate">Chagua tarehe</option>
+</select></label>
+<div class="filters" id="customDates" hidden>
+<label><span data-i18n="fromDate">Tarehe ya kuanzia</span><input id="dateFrom" type="date"></label>
+<label><span data-i18n="toDate">Tarehe ya mwisho</span><input id="dateTo" type="date"></label>
+</div>
+<label><span data-i18n="searchLabel">Tafuta muamala</span><input id="search" placeholder="Tafuta kwa kategoria au maelezo..." data-i18n-placeholder="searchPlaceholder"></label>
+<div class="advanced-filters">
+<label><span data-i18n="filterType">Filter aina</span><select id="filterType"><option value="all" data-i18n="allTypes">Zote</option><option value="income" data-i18n="income">Mapato</option><option value="expense" data-i18n="expense">Matumizi</option></select></label>
+<label><span data-i18n="filterCategory">Filter category</span><select id="filterCategory"><option value="all" data-i18n="allCategories">Zote</option></select></label>
+<label><span data-i18n="minAmount">Kiasi cha chini</span><input id="minAmount" type="number" min="0" step="1" placeholder="0"></label>
+<label><span data-i18n="maxAmount">Kiasi cha juu</span><input id="maxAmount" type="number" min="0" step="1" placeholder="0"></label>
+<label><span data-i18n="receiptFilter">Receipt</span><select id="receiptFilter"><option value="all" data-i18n="allReceipts">Zote</option><option value="with" data-i18n="withReceipt">Zenye receipt</option><option value="without" data-i18n="withoutReceipt">Bila receipt</option></select></label>
+<button class="secondary" id="clearFiltersBtn" type="button" data-i18n="clearFilters">Futa filters</button>
+</div>
+<div id="transactions"></div>
+<div class="actions">
+<button class="secondary" id="exportBtn" data-i18n="exportJson">Pakua nakala (JSON)</button>
+<button class="secondary" id="csvBtn" data-i18n="exportCsv">Pakua ripoti (CSV)</button>
+<button class="secondary" id="pdfBtn" data-i18n="exportPdf">Pakua ripoti (PDF)</button>
+<button class="secondary" id="importBtn" data-i18n="importJson">Rejesha/ingiza nakala (JSON)</button>
+<input id="importFile" type="file" accept="application/json,.json" hidden>
+</div>
+<p class="note" data-i18n="backupNote">Nakala za kupakua ni muhimu kwa usalama. Toleo hili la kwanza halina akaunti za wafanyakazi wala usawazishaji kati ya simu.</p>
+</section>
+<section class="panel">
+<h2 data-i18n="summaryTitle">Muhtasari wa kipindi</h2>
+<p id="periodSummary" class="note"></p>
+<div id="categoryReport"></div>
+</section>
+<details class="panel developer-panel" id="developerPanel">
+<summary data-i18n="developerPanel">Panel ya Developer</summary>
+<p class="note" data-i18n="developerNote">Ukaguzi wa hali ya app, hifadhi, icons na service worker. Haionyeshi maelezo ya miamala.</p>
+<p id="developerResults" class="developer-results" role="status" aria-live="polite" data-i18n="diagnosticsPrompt">Bonyeza “Kagua mfumo” kuanza ukaguzi.</p>
+<p id="biometricStatus" class="note"></p>
+<div class="actions">
+<button class="secondary" id="runDiagnosticsBtn" type="button" data-i18n="runDiagnostics">Kagua mfumo</button>
+<button class="secondary" id="updateAppBtn" type="button" data-i18n="checkUpdate">Angalia sasisho</button>
+<button class="secondary" id="enableBiometricBtn" type="button" data-i18n="enableBiometric">Sajili fingerprint / biometriki</button>
+<button class="secondary" id="changeSecurityBtn" type="button" data-i18n="changeSecurity">Badili ulinzi</button>
+</div>
+<p class="note" data-i18n="securityWarning">Kufuli ya pattern/biometriki inalinda kufungua ukurasa tu; data ya localStorage haijasimbwa kwa njia fiche. Usitumie hili kama ulinzi wa kiwango cha benki au kwenye kifaa cha pamoja.</p>
+</details>
+</main>
+</div>
+<script>
+const DB_KEY='motec-money-manager-v1';
+const ORDERS_KEY='motec-customer-orders-v1';
+const AUTH_KEY='motec-money-manager-lock-v1';
+const SETTINGS_KEY='motec-money-manager-settings-v1';
+const APP_VERSION='2026.10.31.1';
+const DEFAULT_CATEGORIES={sw:['Mauzo','Huduma ya printing','Malighafi','Usafiri','Chakula','Umeme','Kodi','Mshahara','Matumizi mengine','Mapato mengine'],en:['Sales','Printing service','Materials','Transport','Food','Electricity','Rent','Salary','Other expenses','Other income'],zh:['销售','打印服务','材料','交通','餐饮','电费','租金','工资','其他支出','其他收入']};
+let account='business', records=[], orders=[], editingId=null, editingOrderId=null, storageLoadFailed=false, ordersLoadFailed=false, receiptData='', receiptName='';
+const $=id=>document.getElementById(id);
+const i18n={
+ sw:{tagline:'Rekodi mapato na matumizi papo hapo',lockApp:'Funga app',business:'MO TEC BUSINESS',personal:'BINAFSI',income:'Mapato',expense:'Matumizi',balance:'Salio',recordTitle:'+ Rekodi muamala',typeLabel:'Aina ya muamala',moneyIn:'Pesa imeingia',moneyOut:'Pesa imetoka',amountLabel:'Kiasi (TSh)',amountPlaceholder:'Mf. 15000',categoryLabel:'Kategoria',dateLabel:'Tarehe na muda',descriptionLabel:'Maelezo (si lazima)',descriptionPlaceholder:'Mf. Printing business card',saveRecord:'HIFADHI MUAMALA',saveChanges:'HIFADHI MABADILIKO',cancelEdit:'Ghairi kuhariri',localNote:'Taarifa huhifadhiwa kwenye kifaa hiki pekee. Usifute data ya browser bila kutengeneza nakala kwanza.',historyTitle:'Historia ya miamala',periodLabel:'Kipindi',allTime:'Muda wote',thisMonth:'Mwezi huu',thisWeek:'Wiki hii',customDate:'Chagua tarehe',fromDate:'Tarehe ya kuanzia',toDate:'Tarehe ya mwisho',searchLabel:'Tafuta muamala',searchPlaceholder:'Tafuta kwa kategoria au maelezo...',exportJson:'Pakua nakala (JSON)',exportCsv:'Pakua ripoti (CSV)',importJson:'Rejesha/ingiza nakala (JSON)',backupNote:'Nakala za kupakua ni muhimu kwa usalama. Toleo hili la kwanza halina akaunti za wafanyakazi wala usawazishaji kati ya simu.',summaryTitle:'Muhtasari wa kipindi',developerPanel:'Panel ya Developer',developerNote:'Ukaguzi wa hali ya app, hifadhi, icons na service worker. Haionyeshi maelezo ya miamala.',diagnosticsPrompt:'Bonyeza “Kagua mfumo” kuanza ukaguzi.',runDiagnostics:'Kagua mfumo',checkUpdate:'Angalia sasisho',enableBiometric:'Sajili fingerprint / biometriki',changeSecurity:'Badili ulinzi',securityWarning:'Kufuli ya pattern/biometriki inalinda kufungua ukurasa tu; data ya localStorage haijasimbwa kwa njia fiche. Usitumie hili kama ulinzi wa kiwango cha benki au kwenye kifaa cha pamoja.',securityTypeLabel:'Aina ya ulinzi',noSecurity:'Bila ulinzi',securityHint:'Unaweza kubadilisha chaguo baadaye kwenye Panel ya Developer.',pinLabel:'PIN au password',pinPlaceholder:'Angalau herufi/namba 4',pinConfirm:'Rudia PIN au password',pinConfirmPlaceholder:'Rudia hapa',biometricUnlock:'Fungua kwa fingerprint / biometriki',forgotSecurity:'Nimesahau PIN / pattern',biometricNote:'Biometriki hutegemea uwezo wa simu na browser; simu inaweza kutumia fingerprint, uso au PIN yake.',setupTitle:'Chagua ulinzi wa app',appTitle:'MO TEC Money Manager',setupInstructions:'Chagua aina ya ulinzi, kisha weka PIN/password au pattern.',unlockInstructions:'Weka ulinzi ulioweka ili kufungua dashboard.',pinUnlockInstructions:'Weka PIN/password kufungua dashboard.',patternUnlockInstructions:'Chora pattern kufungua dashboard.',saveSecurity:'Hifadhi ulinzi',unlockDashboard:'Fungua dashboard',confirmPattern:'Thibitisha pattern',drawPatternFirst:'Chora pattern yako kwenye nukta kwanza.',pinTooShort:'Weka PIN/password yenye angalau herufi au namba 4.',pinMismatch:'PIN/password hazifanani.',pinWrong:'PIN/password si sahihi.',patternShort:'Chora pattern inayounganisha angalau nukta nne.',patternMismatch:'Pattern hazifanani. Chora mpya tena.',patternWrong:'Pattern si sahihi. Jaribu tena.',confirmReset:'Hii itaondoa PIN/pattern/biometriki kwenye app hii. Miamala yako haitafutwa. Uendelee?',empty:'Hakuna miamala kwenye kipindi hiki.',noDescription:'Hakuna maelezo',edit:'Hariri',delete:'Futa',deleteConfirm:'Una uhakika unataka kufuta muamala huu?',deleted:'Muamala umefutwa.',saved:'Muamala umehifadhiwa.',updated:'Mabadiliko yamehifadhiwa.',invalidAmount:'Weka kiasi sahihi.',invalidDate:'Weka tarehe na muda sahihi.',noReport:'Hakuna data ya kuonyesha kwa kipindi hiki.',periodSummary:(p,n,inc,exp,bal)=>`${p}: ${n} miamala · Mapato ${inc} · Matumizi ${exp} · Salio ${bal}`,categoryLine:(inc,exp)=>`Mapato ${inc} · Matumizi ${exp}`,periods:{all:'Muda wote',month:'Mwezi huu',week:'Wiki hii',custom:'Kipindi ulichochagua'}},
+ en:{tagline:'Track income and expenses instantly',lockApp:'Lock app',business:'MO TEC BUSINESS',personal:'PERSONAL',income:'Income',expense:'Expenses',balance:'Balance',recordTitle:'+ Record transaction',typeLabel:'Transaction type',moneyIn:'Money in',moneyOut:'Money out',amountLabel:'Amount (TSh)',amountPlaceholder:'E.g. 15000',categoryLabel:'Category',dateLabel:'Date and time',descriptionLabel:'Description (optional)',descriptionPlaceholder:'E.g. Printing business card',saveRecord:'SAVE TRANSACTION',saveChanges:'SAVE CHANGES',cancelEdit:'Cancel edit',localNote:'Data is stored only on this device. Do not clear browser data before making a backup.',historyTitle:'Transaction history',periodLabel:'Period',allTime:'All time',thisMonth:'This month',thisWeek:'This week',customDate:'Choose dates',fromDate:'Start date',toDate:'End date',searchLabel:'Search transaction',searchPlaceholder:'Search by category or description...',exportJson:'Download backup (JSON)',exportCsv:'Download report (CSV)',importJson:'Restore/import backup (JSON)',backupNote:'Backups are important. This version has no staff accounts or phone-to-phone sync.',summaryTitle:'Period summary',developerPanel:'Developer Panel',developerNote:'Check app status, storage, icons and service worker. Transaction details are not shown.',diagnosticsPrompt:'Press “Check system” to start diagnostics.',runDiagnostics:'Check system',checkUpdate:'Check update',enableBiometric:'Register fingerprint / biometrics',changeSecurity:'Change security',securityWarning:'Pattern/biometric lock only protects the screen; localStorage data is not encrypted. Do not treat it as bank-grade security or shared-device protection.',securityTypeLabel:'Security type',noSecurity:'No security',securityHint:'You can change this later in the Developer Panel.',pinLabel:'PIN or password',pinPlaceholder:'At least 4 characters',pinConfirm:'Repeat PIN or password',pinConfirmPlaceholder:'Repeat here',biometricUnlock:'Unlock with fingerprint / biometrics',forgotSecurity:'Forgot PIN / pattern',biometricNote:'Biometrics depend on your device and browser; your phone may use fingerprint, face or device PIN.',setupTitle:'Choose app security',appTitle:'MO TEC Money Manager',setupInstructions:'Choose a security type, then set a PIN/password or pattern.',unlockInstructions:'Enter your security to open the dashboard.',pinUnlockInstructions:'Enter PIN/password to open the dashboard.',patternUnlockInstructions:'Draw your pattern to open the dashboard.',saveSecurity:'Save security',unlockDashboard:'Open dashboard',confirmPattern:'Confirm pattern',drawPatternFirst:'Draw your pattern on the dots first.',pinTooShort:'Enter a PIN/password with at least 4 characters.',pinMismatch:'PIN/passwords do not match.',pinWrong:'PIN/password is incorrect.',patternShort:'Draw a pattern connecting at least four dots.',patternMismatch:'Patterns do not match. Draw a new one.',patternWrong:'Pattern is incorrect. Try again.',confirmReset:'This will remove PIN/pattern/biometrics on this device. Transactions will not be deleted. Continue?',empty:'No transactions in this period.',noDescription:'No description',edit:'Edit',delete:'Delete',deleteConfirm:'Are you sure you want to delete this transaction?',deleted:'Transaction deleted.',saved:'Transaction saved.',updated:'Changes saved.',invalidAmount:'Enter a valid amount.',invalidDate:'Enter a valid date and time.',noReport:'No data to show for this period.',periodSummary:(p,n,inc,exp,bal)=>`${p}: ${n} transactions · Income ${inc} · Expenses ${exp} · Balance ${bal}`,categoryLine:(inc,exp)=>`Income ${inc} · Expenses ${exp}`,periods:{all:'All time',month:'This month',week:'This week',custom:'Selected period'}},
+ zh:{tagline:'即时记录收入和支出',lockApp:'锁定应用',business:'MO TEC 业务',personal:'个人',income:'收入',expense:'支出',balance:'余额',recordTitle:'+ 记录交易',typeLabel:'交易类型',moneyIn:'收入',moneyOut:'支出',amountLabel:'金额 (TSh)',amountPlaceholder:'例如 15000',categoryLabel:'类别',dateLabel:'日期和时间',descriptionLabel:'说明（可选）',descriptionPlaceholder:'例如 名片打印',saveRecord:'保存交易',saveChanges:'保存更改',cancelEdit:'取消编辑',localNote:'数据只保存在此设备。清除浏览器数据前请先备份。',historyTitle:'交易历史',periodLabel:'期间',allTime:'全部时间',thisMonth:'本月',thisWeek:'本周',customDate:'选择日期',fromDate:'开始日期',toDate:'结束日期',searchLabel:'搜索交易',searchPlaceholder:'按类别或说明搜索...',exportJson:'下载备份 (JSON)',exportCsv:'下载报表 (CSV)',importJson:'恢复/导入备份 (JSON)',backupNote:'备份很重要。此版本没有员工账号，也没有手机之间同步。',summaryTitle:'期间汇总',developerPanel:'开发者面板',developerNote:'检查应用、存储、图标和 service worker 状态。不显示交易明细。',diagnosticsPrompt:'点击“检查系统”开始诊断。',runDiagnostics:'检查系统',checkUpdate:'检查更新',enableBiometric:'注册指纹 / 生物识别',changeSecurity:'更改安全设置',securityWarning:'图案/生物识别锁只保护界面；localStorage 数据未加密。请勿当作银行级安全或共享设备保护。',securityTypeLabel:'安全类型',noSecurity:'不使用锁',securityHint:'之后可在开发者面板更改。',pinLabel:'PIN 或密码',pinPlaceholder:'至少 4 个字符',pinConfirm:'再次输入 PIN 或密码',pinConfirmPlaceholder:'在此重复输入',biometricUnlock:'使用指纹 / 生物识别解锁',forgotSecurity:'忘记 PIN / 图案',biometricNote:'生物识别取决于设备和浏览器；手机可能使用指纹、人脸或设备 PIN。',setupTitle:'选择应用安全',appTitle:'MO TEC Money Manager',setupInstructions:'选择安全类型，然后设置 PIN/密码或图案。',unlockInstructions:'输入安全信息打开仪表盘。',pinUnlockInstructions:'输入 PIN/密码打开仪表盘。',patternUnlockInstructions:'绘制图案打开仪表盘。',saveSecurity:'保存安全设置',unlockDashboard:'打开仪表盘',confirmPattern:'确认图案',drawPatternFirst:'请先在圆点上绘制图案。',pinTooShort:'PIN/密码至少需要 4 个字符。',pinMismatch:'两次 PIN/密码不一致。',pinWrong:'PIN/密码不正确。',patternShort:'请连接至少四个圆点。',patternMismatch:'图案不一致，请重新绘制。',patternWrong:'图案不正确，请重试。',confirmReset:'这将移除此设备上的 PIN/图案/生物识别。交易不会被删除。是否继续？',empty:'此期间没有交易。',noDescription:'无说明',edit:'编辑',delete:'删除',deleteConfirm:'确定要删除此交易吗？',deleted:'交易已删除。',saved:'交易已保存。',updated:'更改已保存。',invalidAmount:'请输入有效金额。',invalidDate:'请输入有效日期和时间。',noReport:'此期间没有可显示的数据。',periodSummary:(p,n,inc,exp,bal)=>`${p}: ${n} 笔交易 · 收入 ${inc} · 支出 ${exp} · 余额 ${bal}`,categoryLine:(inc,exp)=>`收入 ${inc} · 支出 ${exp}`,periods:{all:'全部时间',month:'本月',week:'本周',custom:'所选期间'}}
+};
+Object.assign(i18n.sw,{chartsTitle:'Dashboard charts',chartModeLabel:'Kipimo cha graph',chartDay:'Siku',chartWeek:'Wiki',chartMonth:'Mwezi',budgetNotSet:'Bajeti haijawekwa kwa mwezi huu.',receiptLabel:'Receipt / risiti',managerTitle:'Budget, categories & roles',monthlyBudgetLabel:'Bajeti ya mwezi (TSh)',budgetPlaceholder:'Mf. 500000',saveBudget:'Hifadhi',addCategoryLabel:'Ongeza category',categoryPlaceholder:'Mf. Matengenezo',addCategory:'Ongeza',roleLabel:'Role ya mtumiaji',roleNote:'Toleo hili ni la mmiliki mmoja. Akaunti tofauti za wafanyakazi na ruhusa halisi zinahitaji seva; kuchagua role kwenye kifaa hakutoi ulinzi huo.',exportPdf:'Pakua ripoti (PDF)',budgetExceeded:(spent,budget)=>`Tahadhari: matumizi ${spent} yamevuka bajeti ya ${budget}.`,budgetWarning:(pct,spent,budget)=>`Tahadhari: umetumia ${pct}% ya bajeti (${spent} / ${budget}).`,budgetOk:(spent,budget,pct)=>`Bajeti iko sawa: ${spent} / ${budget} (${pct}%).`,chartEmpty:'Hakuna data ya graph bado',staffDeleteDenied:'Staff hawezi kufuta miamala.',receiptTooLarge:'Receipt ni kubwa sana. Tumia picha ndogo chini ya 700KB.',recoveryCodeIntro:'Recovery code yako ni:',recoveryCodeHint:'Ihifadhi sehemu salama. Ukitumia "Nimesahau PIN / pattern" utahitaji code hii.',recoveryPrompt:'Weka recovery code uliyopewa wakati wa kusanidi ulinzi.',recoveryWrong:'Recovery code si sahihi.',receiptText:'Risiti',pdfTitle:'MO TEC Money Report',pdfIncome:'Mapato',pdfExpenses:'Matumizi',pdfBalance:'Salio'});
+Object.assign(i18n.en,{chartsTitle:'Dashboard charts',chartModeLabel:'Chart range',chartDay:'Day',chartWeek:'Week',chartMonth:'Month',budgetNotSet:'No monthly budget has been set.',receiptLabel:'Receipt',managerTitle:'Budget, categories & roles',monthlyBudgetLabel:'Monthly budget (TSh)',budgetPlaceholder:'E.g. 500000',saveBudget:'Save',addCategoryLabel:'Add category',categoryPlaceholder:'E.g. Repairs',addCategory:'Add',roleLabel:'User role',roleNote:'Staff cannot delete transactions or change security. Cloud sync/login needs a backend; this app currently uses local roles.',exportPdf:'Download report (PDF)',budgetExceeded:(spent,budget)=>`Alert: expenses ${spent} have exceeded the ${budget} budget.`,budgetWarning:(pct,spent,budget)=>`Alert: you have used ${pct}% of the budget (${spent} / ${budget}).`,budgetOk:(spent,budget,pct)=>`Budget is okay: ${spent} / ${budget} (${pct}%).`,chartEmpty:'No chart data yet',staffDeleteDenied:'Staff cannot delete transactions.',receiptTooLarge:'Receipt is too large. Use an image under 700KB.',recoveryCodeIntro:'Your recovery code is:',recoveryCodeHint:'Keep it somewhere safe. You will need it if you use “Forgot PIN / pattern”.',recoveryPrompt:'Enter the recovery code you received when setting up security.',recoveryWrong:'Recovery code is incorrect.',receiptText:'Receipt',pdfTitle:'MO TEC Money Report',pdfIncome:'Income',pdfExpenses:'Expenses',pdfBalance:'Balance'});
+Object.assign(i18n.zh,{chartsTitle:'仪表盘图表',chartModeLabel:'图表范围',chartDay:'日',chartWeek:'周',chartMonth:'月',budgetNotSet:'本月尚未设置预算。',receiptLabel:'收据',managerTitle:'预算、类别和角色',monthlyBudgetLabel:'月预算 (TSh)',budgetPlaceholder:'例如 500000',saveBudget:'保存',addCategoryLabel:'添加类别',categoryPlaceholder:'例如 维修',addCategory:'添加',roleLabel:'用户角色',roleNote:'Staff 不能删除交易或更改安全设置。云同步/登录需要后端；当前使用本地角色。',exportPdf:'下载报表 (PDF)',budgetExceeded:(spent,budget)=>`提醒：支出 ${spent} 已超过预算 ${budget}。`,budgetWarning:(pct,spent,budget)=>`提醒：已使用预算的 ${pct}%（${spent} / ${budget}）。`,budgetOk:(spent,budget,pct)=>`预算正常：${spent} / ${budget}（${pct}%）。`,chartEmpty:'暂无图表数据',staffDeleteDenied:'Staff 不能删除交易。',receiptTooLarge:'收据图片太大。请使用小于 700KB 的图片。',recoveryCodeIntro:'你的恢复码是：',recoveryCodeHint:'请妥善保存。使用“忘记 PIN / 图案”时需要此码。',recoveryPrompt:'请输入设置安全时收到的恢复码。',recoveryWrong:'恢复码不正确。',receiptText:'收据',pdfTitle:'MO TEC Money 报表',pdfIncome:'收入',pdfExpenses:'支出',pdfBalance:'余额'});
+Object.assign(i18n.sw,{insightsTitle:'Business Insights',profitThisMonth:'Faida/hasara ya mwezi',dailyAverage:'Wastani wa mapato kwa siku',topExpenseCategory:'Category yenye matumizi mengi',bestIncomeCategory:'Best income category',bestSalesDay:'Siku yenye mapato makubwa',weekTrend:'Mabadiliko dhidi ya wiki iliyopita',cashHealthScore:'Cash health score',insightTip:'Ushauri wa haraka',filterType:'Filter aina',allTypes:'Zote',filterCategory:'Filter category',allCategories:'Zote',minAmount:'Kiasi cha chini',maxAmount:'Kiasi cha juu',receiptFilter:'Receipt',allReceipts:'Zote',withReceipt:'Zenye receipt',withoutReceipt:'Bila receipt',clearFilters:'Futa filters',noData:'Hakuna data',upFromLastWeek:p=>`Juu ${p}%`,downFromLastWeek:p=>`Chini ${p}%`,sameAsLastWeek:'Hakuna mabadiliko',tipGood:'Biashara iko kwenye mwelekeo mzuri.',tipWatchExpenses:'Angalia matumizi; yamekaribia au yamezidi mapato.',tipAddSales:'Ongeza miamala zaidi ili insight ziwe sahihi.'});
+Object.assign(i18n.en,{insightsTitle:'Business Insights',profitThisMonth:'Monthly profit/loss',dailyAverage:'Average daily income',topExpenseCategory:'Top expense category',bestIncomeCategory:'Best income category',bestSalesDay:'Best income day',weekTrend:'Change vs last week',cashHealthScore:'Cash health score',insightTip:'Quick advice',filterType:'Filter type',allTypes:'All',filterCategory:'Filter category',allCategories:'All',minAmount:'Min amount',maxAmount:'Max amount',receiptFilter:'Receipt',allReceipts:'All',withReceipt:'With receipt',withoutReceipt:'Without receipt',clearFilters:'Clear filters',noData:'No data',upFromLastWeek:p=>`Up ${p}%`,downFromLastWeek:p=>`Down ${p}%`,sameAsLastWeek:'No change',tipGood:'The business is moving in a healthy direction.',tipWatchExpenses:'Watch expenses; they are close to or above income.',tipAddSales:'Add more transactions for better insights.'});
+Object.assign(i18n.zh,{insightsTitle:'经营洞察',profitThisMonth:'本月利润/亏损',dailyAverage:'日均收入',topExpenseCategory:'最高支出类别',bestIncomeCategory:'最佳收入类别',bestSalesDay:'最高收入日',weekTrend:'与上周对比',cashHealthScore:'现金健康分',insightTip:'快速建议',filterType:'类型筛选',allTypes:'全部',filterCategory:'类别筛选',allCategories:'全部',minAmount:'最低金额',maxAmount:'最高金额',receiptFilter:'收据',allReceipts:'全部',withReceipt:'有收据',withoutReceipt:'无收据',clearFilters:'清除筛选',noData:'暂无数据',upFromLastWeek:p=>`上升 ${p}%`,downFromLastWeek:p=>`下降 ${p}%`,sameAsLastWeek:'无变化',tipGood:'业务方向健康。',tipWatchExpenses:'注意支出；已接近或超过收入。',tipAddSales:'添加更多交易以获得更准确洞察。'});
+Object.assign(i18n.sw,{ordersTitle:'Oda za Wateja',customerName:'Jina la mteja',customerPhone:'Simu/mawasiliano',orderWork:'Kazi/huduma',orderAmount:'Kiasi (TSh)',orderDeposit:'Deposit (TSh)',orderDue:'Deadline',orderStatus:'Status',statusPending:'Inasubiri',statusProgress:'Inaendelea',statusDone:'Imekamilika',statusDelivered:'Imekabidhiwa',statusCancelled:'Imefutwa',orderNotes:'Maelezo',saveOrder:'Hifadhi oda',saveOrderChanges:'Hifadhi mabadiliko ya oda',orderSaved:'Oda imehifadhiwa.',orderUpdated:'Oda imesasishwa.',orderDeleted:'Oda imefutwa.',noOrders:'Hakuna oda bado.',deleteOrderConfirm:'Una uhakika unataka kufuta oda hii?',remaining:'Baki'});
+Object.assign(i18n.en,{ordersTitle:'Customer Orders',customerName:'Customer name',customerPhone:'Phone/contact',orderWork:'Job/service',orderAmount:'Amount (TSh)',orderDeposit:'Deposit (TSh)',orderDue:'Deadline',orderStatus:'Status',statusPending:'Pending',statusProgress:'In progress',statusDone:'Completed',statusDelivered:'Delivered',statusCancelled:'Cancelled',orderNotes:'Notes',saveOrder:'Save order',saveOrderChanges:'Save order changes',orderSaved:'Order saved.',orderUpdated:'Order updated.',orderDeleted:'Order deleted.',noOrders:'No orders yet.',deleteOrderConfirm:'Are you sure you want to delete this order?',remaining:'Remaining'});
+Object.assign(i18n.zh,{ordersTitle:'客户订单',customerName:'客户姓名',customerPhone:'电话/联系方式',orderWork:'工作/服务',orderAmount:'金额 (TSh)',orderDeposit:'定金 (TSh)',orderDue:'截止日期',orderStatus:'状态',statusPending:'待处理',statusProgress:'进行中',statusDone:'已完成',statusDelivered:'已交付',statusCancelled:'已取消',orderNotes:'备注',saveOrder:'保存订单',saveOrderChanges:'保存订单更改',orderSaved:'订单已保存。',orderUpdated:'订单已更新。',orderDeleted:'订单已删除。',noOrders:'暂无订单。',deleteOrderConfirm:'确定要删除此订单吗？',remaining:'剩余'});
+function settings(){try{return JSON.parse(localStorage.getItem(SETTINGS_KEY)||'{}')}catch{return {}}}
+function saveSettings(next){const before=settings(),after={...before,...next},keys=['lang','theme','categories','budgets','summaryStart','summaryStartSource'];localStorage.setItem(SETTINGS_KEY,JSON.stringify(after));if(keys.some(key=>JSON.stringify(before[key])!==JSON.stringify(after[key])))window.dispatchEvent(new Event('motec:settings-commit'))}
+function t(key){return (i18n[settings().lang||'sw']||i18n.sw)[key]??i18n.sw[key]??key}
+function applyLanguage(){const lang=settings().lang||'sw';document.documentElement.lang=lang==='zh'?'zh-CN':lang;$('languageSelect').value=lang;document.querySelectorAll('[data-i18n]').forEach(el=>{el.textContent=t(el.dataset.i18n)});document.querySelectorAll('[data-i18n-placeholder]').forEach(el=>{el.placeholder=t(el.dataset.i18nPlaceholder)});renderCategories();setAuthUi();render()}
+function applyTheme(){const theme=settings().theme||'light';document.documentElement.dataset.theme=theme;$('themeToggle').textContent=theme==='dark'?'☾':'☀';document.querySelector('meta[name="theme-color"]').content=theme==='dark'?'#0f172a':'#b91c1c'}
+function applyPanelState(){if($('insightsPanel'))$('insightsPanel').open=!!settings().insightsOpen;if($('chartsPanel'))$('chartsPanel').open=!!settings().chartsOpen;if($('ordersPanel'))$('ordersPanel').open=!!settings().ordersOpen;if($('managerPanel'))$('managerPanel').open=!!settings().managerOpen}
+function getCategories(){const saved=settings().categories,lang=settings().lang||'sw';return Array.isArray(saved)&&saved.length?saved:DEFAULT_CATEGORIES[lang]||DEFAULT_CATEGORIES.sw}
+function renderCategories(){const cats=getCategories();$('category').innerHTML=cats.map(c=>`<option>${escapeHtml(c)}</option>`).join('');$('categoryList').innerHTML=cats.map(c=>`<span class="chip">${escapeHtml(c)} <button class="secondary remove-category" type="button" data-category="${escapeHtml(c)}">×</button></span>`).join('')}
+function renderFilterCategories(){const current=$('filterCategory')?.value||'all',cats=[...new Set(records.filter(r=>r.account===account).map(r=>r.category).concat(getCategories()))];$('filterCategory').innerHTML=`<option value="all">${t('allCategories')}</option>`+cats.map(c=>`<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');$('filterCategory').value=cats.includes(current)?current:'all'}
+function currentRole(){return 'admin'}
+function applyRole(){const role=currentRole();$('userRole').value=role;$('roleBadge').textContent='Mmiliki';$('changeSecurityBtn').disabled=role!=='admin';$('addCategoryBtn').disabled=role!=='admin';document.querySelectorAll('.remove-category').forEach(b=>b.disabled=role!=='admin')}
+function currentMonthKey(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`}
+function monthExpenses(){const now=new Date();return records.filter(r=>r.account===account&&r.type==='expense').filter(r=>{const d=new Date(r.date);return d.getFullYear()===now.getFullYear()&&d.getMonth()===now.getMonth()}).reduce((s,r)=>s+r.amount,0)}
+function updateBudget(){const budgets=settings().budgets||{},budget=Number(budgets[account]?.[currentMonthKey()]||0);$('monthlyBudget').value=budget||'';const spent=monthExpenses(),el=$('budgetAlert');if(!budget){el.className='budget-alert ok';el.textContent=t('budgetNotSet');return}const pct=Math.round(spent/budget*100);el.className='budget-alert '+(pct>=80?'':'ok');el.textContent=pct>=100?t('budgetExceeded')(money(spent),money(budget)):pct>=80?t('budgetWarning')(pct,money(spent),money(budget)):t('budgetOk')(money(spent),money(budget),pct)}
+function setStatus(message,isError=false){$('status').textContent=message;$('status').classList.toggle('error',isError)}
+function load(){try{const stored=JSON.parse(localStorage.getItem(DB_KEY)||'[]');if(!Array.isArray(stored)||!stored.every(validRecord)||new Set(stored.map(r=>r.id)).size!==stored.length)throw new Error('Muundo wa data si sahihi au una ID zinazojirudia.');records=stored}catch(error){storageLoadFailed=true;setStatus(`Imeshindikana kusoma taarifa zilizohifadhiwa: ${error.message}. Hifadhi imezuiwa ili kulinda data; rejesha nakala sahihi.`,true)}try{const storedOrders=JSON.parse(localStorage.getItem(ORDERS_KEY)||'[]');if(!Array.isArray(storedOrders)||!storedOrders.every(validOrder)||new Set(storedOrders.map(o=>o.id)).size!==storedOrders.length)throw new Error('Muundo wa oda si sahihi.');orders=storedOrders}catch(error){ordersLoadFailed=true;$('orderStatusMessage').textContent=`Imeshindikana kusoma oda: ${error.message}`;$('orderStatusMessage').classList.add('error')}}
+function save(nextRecords,restore=false){if(storageLoadFailed&&!restore)throw new Error('Rejesha nakala halali kabla ya kuendelea ili kuzuia kupoteza data iliyopo.');localStorage.setItem(DB_KEY,JSON.stringify(nextRecords));records=nextRecords;if(restore)storageLoadFailed=false}
+function saveOrders(nextOrders,restore=false){if(ordersLoadFailed&&!restore)throw new Error('Rejesha nakala halali kabla ya kuendelea.');localStorage.setItem(ORDERS_KEY,JSON.stringify(nextOrders));orders=nextOrders;if(restore)ordersLoadFailed=false}
+function money(n){return new Intl.NumberFormat('sw-TZ',{style:'currency',currency:'TZS',maximumFractionDigits:0}).format(n)}
+function localDateValue(){const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,16)}
+function randomId(){if(crypto.randomUUID)return crypto.randomUUID();const bytes=new Uint8Array(16);crypto.getRandomValues(bytes);return Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join('')}
+function base64Url(bytes){let binary='';new Uint8Array(bytes).forEach(b=>binary+=String.fromCharCode(b));return btoa(binary).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
+function fromBase64Url(value){const base64=value.replace(/-/g,'+').replace(/_/g,'/');return Uint8Array.from(atob(base64.padEnd(Math.ceil(base64.length/4)*4,'=')),c=>c.charCodeAt(0))}
+function randomBytes(length){const bytes=new Uint8Array(length);crypto.getRandomValues(bytes);return bytes}
+function recoveryCode(){return Array.from(randomBytes(16),b=>(b%10).toString()).join('')}
+function authSupported(){return window.isSecureContext&&!!(navigator.credentials&&window.PublicKeyCredential&&crypto.subtle)}
+function authConfig(){try{const value=JSON.parse(localStorage.getItem(AUTH_KEY)||'null');if(!value||value.version!==1)return null;if(value.type==='none')return value;if(['pattern','pin'].includes(value.type||'pattern')&&typeof value.salt==='string'&&typeof value.hash==='string')return {...value,type:value.type||'pattern'};return null}catch{return null}}
+async function secretDigest(secret,salt){const keyMaterial=await crypto.subtle.importKey('raw',new TextEncoder().encode(secret),'PBKDF2',false,['deriveBits']);const bits=await crypto.subtle.deriveBits({name:'PBKDF2',salt,iterations:310000,hash:'SHA-256'},keyMaterial,256);return base64Url(bits)}
+let authMode='setup',pendingPattern='',patternPath=[],drawing=false,authBusy=false,lockTimer;
+const LOCK_LIMIT_KEY='motec-lock-attempts-v1';
+function lockLimit(){try{return JSON.parse(localStorage.getItem(LOCK_LIMIT_KEY)||'{"count":0,"until":0}')}catch{return {count:0,until:0}}}
+function checkLockLimit(){const limit=lockLimit();if(Date.now()<limit.until)throw Error('Majaribio mengi. Subiri kabla ya kujaribu tena.');}
+function failedLockAttempt(){const before=lockLimit(),count=(before.count||0)+1,until=count>=5?Date.now()+60000:0;localStorage.setItem(LOCK_LIMIT_KEY,JSON.stringify({count:until?0:count,until}));}
+function clearLockLimit(){localStorage.removeItem(LOCK_LIMIT_KEY)}
+function setLockMessage(message,isError=true){$('lockMessage').textContent=message;$('lockMessage').classList.toggle('lock-error',isError)}
+function updateBiometricUi(){const config=authConfig(),supported=authSupported();$('biometricBtn').hidden=!(config&&config.type!=='none'&&config.credentialId&&supported);const status=$('biometricStatus');if(status)status.textContent=config?.credentialId?'Biometriki ya kifaa imesajiliwa.':supported?'Unaweza kusajili fingerprint/biometriki kwenye kifaa hiki.':'Fingerprint ya WebAuthn inahitaji HTTPS au localhost na browser inayoiunga mkono.'}
+function selectedSecurity(){return $('securityType').value}
+function isPinMode(){return selectedSecurity()==='pin'||authConfig()?.type==='pin'&&authMode==='unlock'}
+function setAuthUi(){
+ const config=authConfig(),setup=authMode.startsWith('setup'),type=setup?selectedSecurity():config?.type||'pattern';
+ $('securityChoice').hidden=!setup;$('patternBoard').hidden=type!=='pattern';$('pinFields').hidden=type!=='pin';$('pinConfirmWrap').hidden=!(setup&&type==='pin');
+ $('patternDoneBtn').hidden=false;$('patternDoneBtn').textContent=setup?t('saveSecurity'):type==='pin'?t('unlockDashboard'):t('confirmPattern');
+ $('forgotSecurityBtn').hidden=setup||!config||config.type==='none';$('biometricBtn').hidden=!(authMode==='unlock'&&config?.credentialId&&authSupported());
+}
+function showLock(mode){authMode=mode;$('appShell').hidden=true;$('lockScreen').hidden=false;const config=authConfig();if(mode==='unlock'&&config?.type==='none'){unlockApp();return}$('lockTitle').textContent=mode.startsWith('setup')?t('setupTitle'):t('appTitle');$('lockInstructions').textContent=mode.startsWith('setup')?t('setupInstructions'):t('unlockInstructions');if(config?.type==='pin')$('lockInstructions').textContent=t('pinUnlockInstructions');if(config?.type==='pattern')$('lockInstructions').textContent=t('patternUnlockInstructions');setLockMessage('');clearPattern();$('pinInput').value='';$('pinConfirmInput').value='';setAuthUi()}
+function clearPattern(){patternPath=[];drawing=false;document.querySelectorAll('.pattern-dot').forEach(dot=>dot.classList.remove('selected'));$('patternLine').setAttribute('points','')}
+function addPatternDot(index){if(patternPath.length===0||patternPath[patternPath.length-1]!==index){if(!patternPath.includes(index)){patternPath.push(index);document.querySelector(`.pattern-dot[data-dot="${index}"]`).classList.add('selected');$('patternLine').setAttribute('points',patternPath.map(i=>`${50+(i%3)*100},${50+Math.floor(i/3)*100}`).join(' '))}}}
+function nearestPatternDot(event){const rect=$('patternBoard').getBoundingClientRect(),x=(event.clientX-rect.left)/rect.width*300,y=(event.clientY-rect.top)/rect.height*300,col=Math.max(0,Math.min(2,Math.floor(x/100))),row=Math.max(0,Math.min(2,Math.floor(y/100))),cx=50+col*100,cy=50+row*100;return Math.hypot(x-cx,y-cy)<44?row*3+col:-1}
+async function saveSecret(type,secret){const salt=randomBytes(16),hash=await secretDigest(secret,salt),code=recoveryCode(),recoverySalt=randomBytes(16),recoveryHash=await secretDigest(code,recoverySalt);localStorage.setItem(AUTH_KEY,JSON.stringify({version:1,type,salt:base64Url(salt),hash,recoverySalt:base64Url(recoverySalt),recoveryHash}));alert(`${t('recoveryCodeIntro')} ${code}\n${t('recoveryCodeHint')}`)}
+async function finishPin(){if(authBusy)return;const pin=$('pinInput').value;if(pin.length<4){setLockMessage(t('pinTooShort'));return}authBusy=true;try{if(authMode.startsWith('setup')){if(pin!==$('pinConfirmInput').value){setLockMessage(t('pinMismatch'));return}await saveSecret('pin',pin);unlockApp();updateBiometricUi();return}checkLockLimit();const config=authConfig();if(!config){showLock('setup-first');return}const digest=await secretDigest(pin,fromBase64Url(config.salt));$('pinInput').value='';if(digest!==config.hash){failedLockAttempt();setLockMessage(t('pinWrong'));return}clearLockLimit();unlockApp()}catch(error){setLockMessage(`Error: ${error.message}`)}finally{authBusy=false}}
+async function finishPattern(){if(authBusy)return;const pattern=patternPath.join('');clearPattern();if(pattern.length<4){setLockMessage(t('patternShort'));return}authBusy=true;try{if(authMode.startsWith('setup')){if(authMode==='setup-pattern-confirm'){if(pattern!==pendingPattern){pendingPattern='';authMode='setup-first';setLockMessage(t('patternMismatch'));setAuthUi();return}await saveSecret('pattern',pattern);pendingPattern='';unlockApp();updateBiometricUi();return}pendingPattern=pattern;authMode='setup-pattern-confirm';$('lockTitle').textContent=t('confirmPattern');$('lockInstructions').textContent=t('patternUnlockInstructions');setLockMessage('',false);return}checkLockLimit();const config=authConfig();if(!config){showLock('setup-first');return}const digest=await secretDigest(pattern,fromBase64Url(config.salt));if(digest!==config.hash){failedLockAttempt();setLockMessage(t('patternWrong'));return}clearLockLimit();unlockApp()}catch(error){setLockMessage(`Error: ${error.message}`)}finally{authBusy=false}}
+async function continueAuth(){const type=authMode.startsWith('setup')?selectedSecurity():authConfig()?.type;if(type==='none'){localStorage.setItem(AUTH_KEY,JSON.stringify({version:1,type:'none'}));unlockApp();return}if(type==='pin')return finishPin();if(type==='pattern'){if(authMode.startsWith('setup')&&patternPath.length<4){setLockMessage(t('drawPatternFirst'));return}return finishPattern()}}
+function unlockApp(){clearTimeout(lockTimer);$('lockScreen').hidden=true;$('appShell').hidden=false;window.scrollTo({top:0,behavior:'auto'});window.dispatchEvent(new Event('motec:unlocked'))}
+function lockApp(){if(!$('appShell').hidden){showLock('unlock')}}
+async function useBiometric(){if(authBusy)return;const config=authConfig();if(!config?.credentialId||!authSupported()){setLockMessage('Biometriki haijasajiliwa au kifaa hakiiungi mkono.');return}authBusy=true;try{const credential=await navigator.credentials.get({publicKey:{challenge:randomBytes(32),allowCredentials:[{type:'public-key',id:fromBase64Url(config.credentialId)}],userVerification:'required',timeout:60000}});if(!credential||credential.id!==config.credentialId)throw new Error('Kifaa hakikuthibitisha akaunti hii.');unlockApp()}catch(error){setLockMessage(error.name==='NotAllowedError'?'Uthibitisho umeghairiwa au muda wake umeisha.':`Fingerprint/biometriki imeshindwa: ${error.message}`)}finally{authBusy=false}}
+async function registerBiometric(){if(!authSupported()){$('developerResults').textContent='Fingerprint inahitaji HTTPS/localhost na browser ya kisasa inayounga mkono WebAuthn.';return}try{const userId=randomBytes(16),challenge=randomBytes(32);const credential=await navigator.credentials.create({publicKey:{challenge,rp:{name:'MO TEC Money Manager'},user:{id:userId,name:'motec-user',displayName:'MO TEC User'},pubKeyCredParams:[{type:'public-key',alg:-7},{type:'public-key',alg:-257}],authenticatorSelection:{authenticatorAttachment:'platform',residentKey:'preferred',userVerification:'required'},timeout:60000,attestation:'none'}});if(!credential)throw new Error('Kifaa hakikuunda credential.');const config=authConfig();if(!config||config.type==='none')throw new Error('Weka PIN/password au pattern kwanza.');config.credentialId=base64Url(credential.rawId);localStorage.setItem(AUTH_KEY,JSON.stringify(config));updateBiometricUi();$('developerResults').textContent='Biometriki ya kifaa imesajiliwa. Toka kwenye ukurasa kisha ujaribu kufungua kwa uthibitisho wa kifaa.'}catch(error){$('developerResults').textContent=error.name==='NotAllowedError'?'Usajili wa biometriki umeghairiwa au kifaa hakikukubali.':`Usajili wa biometriki umeshindwa: ${error.message}`}}
+async function resetSecurity(){const config=authConfig();if(config?.recoveryHash){try{checkLockLimit()}catch(error){setLockMessage(error.message);return}const code=prompt(t('recoveryPrompt'));if(!code)return;const digest=await secretDigest(code.trim(),fromBase64Url(config.recoverySalt));if(digest!==config.recoveryHash){failedLockAttempt();setLockMessage(t('recoveryWrong'));alert(t('recoveryWrong'));return}}else if(!confirm(t('confirmReset')))return;clearLockLimit();localStorage.removeItem(AUTH_KEY);showLock('setup-first')}
+function initializeLock(){const config=authConfig();showLock(config?'unlock':'setup-first');updateBiometricUi();if(!authSupported()&&!window.isSecureContext)$('lockInstructions').textContent+=' Fingerprint needs HTTPS; PIN/password or pattern still works.'}
+document.querySelectorAll('.app-logo').forEach(image=>image.addEventListener('error',()=>{if(!image.dataset.fallback){image.dataset.fallback='1';image.src='MO%20LOGO%20NEW%20226.png'}}));
+document.querySelectorAll('.pattern-dot').forEach(dot=>dot.addEventListener('click',e=>{if(e.detail===0)addPatternDot(Number(dot.dataset.dot))}));
+$('patternBoard').addEventListener('pointerdown',e=>{if(authBusy)return;const index=nearestPatternDot(e);if(index<0)return;e.preventDefault();drawing=true;$('patternBoard').setPointerCapture(e.pointerId);addPatternDot(index)});
+$('patternBoard').addEventListener('pointermove',e=>{if(!drawing)return;const index=nearestPatternDot(e);if(index>=0)addPatternDot(index)});
+$('patternBoard').addEventListener('pointerup',()=>{if(drawing){drawing=false;finishPattern()}});
+$('patternBoard').addEventListener('pointercancel',()=>{drawing=false;clearPattern()});
+$('patternDoneBtn').addEventListener('click',continueAuth);
+$('pinInput').addEventListener('keydown',e=>{if(e.key==='Enter')continueAuth()});
+$('pinConfirmInput').addEventListener('keydown',e=>{if(e.key==='Enter')continueAuth()});
+$('securityType').addEventListener('change',()=>{clearPattern();setLockMessage('',false);setAuthUi()});
+$('biometricBtn').addEventListener('click',useBiometric);
+$('enableBiometricBtn').addEventListener('click',registerBiometric);
+$('forgotSecurityBtn').addEventListener('click',resetSecurity);
+$('changeSecurityBtn').addEventListener('click',resetSecurity);
+$('lockAppBtn').addEventListener('click',lockApp);
+document.addEventListener('visibilitychange',()=>{clearTimeout(lockTimer);if(document.hidden&&!$('appShell').hidden)lockTimer=setTimeout(lockApp,60000)});
+$('date').value=localDateValue();
+function periodRecords(list){
+ const period=$('period').value, now=new Date();
+ if(period==='month')return list.filter(r=>{const d=new Date(r.date);return d.getFullYear()===now.getFullYear()&&d.getMonth()===now.getMonth()});
+ if(period==='week'){const start=new Date(now);start.setHours(0,0,0,0);start.setDate(start.getDate()-(start.getDay()+6)%7);return list.filter(r=>new Date(r.date)>=start&&new Date(r.date)<=now)}
+ if(period==='custom'){const from=$('dateFrom').value,to=$('dateTo').value;return list.filter(r=>{const d=new Date(r.date),day=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;return(!from||day>=from)&&(!to||day<=to)})}
+ return list;
+}
+function advancedRecords(list){const type=$('filterType').value,cat=$('filterCategory').value,min=Number($('minAmount').value)||0,max=Number($('maxAmount').value)||0,receipt=$('receiptFilter').value;return list.filter(r=>(type==='all'||r.type===type)&&(cat==='all'||r.category===cat)&&(!min||r.amount>=min)&&(!max||r.amount<=max)&&(receipt==='all'||(receipt==='with'&&r.receipt)||(receipt==='without'&&!r.receipt)))}
+function sumBy(list,type){return list.filter(r=>r.type===type).reduce((s,r)=>s+r.amount,0)}
+function monthList(list,offset=0){const now=new Date(),target=new Date(now.getFullYear(),now.getMonth()+offset,1);return list.filter(r=>{const d=new Date(r.date);return d.getFullYear()===target.getFullYear()&&d.getMonth()===target.getMonth()})}
+function weekList(list,offset=0){const now=new Date();now.setDate(now.getDate()+offset*7);const start=new Date(now);start.setHours(0,0,0,0);start.setDate(start.getDate()-(start.getDay()+6)%7);const end=new Date(start);end.setDate(start.getDate()+7);return list.filter(r=>{const d=new Date(r.date);return d>=start&&d<end})}
+function topCategory(list,type){const totals=new Map();list.filter(r=>r.type===type).forEach(r=>totals.set(r.category,(totals.get(r.category)||0)+r.amount));const top=[...totals.entries()].sort((a,b)=>b[1]-a[1])[0];return top?`${top[0]} (${money(top[1])})`:t('noData')}
+function renderInsights(accountRecords){const m=monthList(accountRecords),inc=sumBy(m,'income'),exp=sumBy(m,'expense'),profit=inc-exp,days=Math.max(1,new Date().getDate()),thisWeek=sumBy(weekList(accountRecords,0),'income'),lastWeek=sumBy(weekList(accountRecords,-1),'income');const byDay=new Map();m.filter(r=>r.type==='income').forEach(r=>{const label=new Date(r.date).toLocaleDateString(settings().lang==='zh'?'zh-CN':settings().lang==='en'?'en-US':'sw-TZ',{weekday:'short'});byDay.set(label,(byDay.get(label)||0)+r.amount)});const best=[...byDay.entries()].sort((a,b)=>b[1]-a[1])[0];const trend=lastWeek?Math.round((thisWeek-lastWeek)/lastWeek*100):thisWeek?100:0;const score=Math.max(0,Math.min(100,Math.round((inc?profit/inc*60:0)+(inc>exp?30:10)+(records.length?10:0))));$('insightProfit').textContent=money(profit);$('insightDailyAvg').textContent=money(inc/days);$('insightTopExpense').textContent=topCategory(m,'expense');$('insightTopIncome').textContent=topCategory(m,'income');$('insightBestDay').textContent=best?`${best[0]} (${money(best[1])})`:t('noData');$('insightWeekTrend').textContent=trend>0?t('upFromLastWeek')(trend):trend<0?t('downFromLastWeek')(Math.abs(trend)):t('sameAsLastWeek');$('insightCashScore').textContent=score;$('insightTip').textContent=!records.length?t('tipAddSales'):profit>=0?t('tipGood'):t('tipWatchExpenses')}
+function asLocalInput(iso){const d=new Date(iso);d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,16)}
+function render(){
+ renderFilterCategories();
+ const accountRecords=records.filter(r=>r.account===account),list=advancedRecords(periodRecords(accountRecords));
+ const inc=list.filter(r=>r.type==='income').reduce((s,r)=>s+r.amount,0);
+ const exp=list.filter(r=>r.type==='expense').reduce((s,r)=>s+r.amount,0);
+ $('income').textContent=money(inc);$('expense').textContent=money(exp);$('balance').textContent=money(inc-exp);
+ const q=$('search').value.trim().toLowerCase();
+ const shown=list.filter(r=>(r.category+' '+r.description+' '+r.date).toLowerCase().includes(q)).sort((a,b)=>b.date.localeCompare(a.date));
+ $('transactions').innerHTML=shown.length?shown.map(r=>`<div class="transaction"><div><b>${escapeHtml(r.category)}</b><small>${escapeHtml(r.description||t('noDescription'))} · ${new Date(r.date).toLocaleString(settings().lang==='zh'?'zh-CN':settings().lang==='en'?'en-US':'sw-TZ')}${r.receipt?' · '+t('receiptText'):''}</small></div><div class="amount ${r.type}">${r.type==='income'?'+':'−'}${money(r.amount)}<br><button class="secondary edit-record" data-id="${escapeHtml(r.id)}" style="padding:5px 8px;margin-top:5px;font-size:12px">${t('edit')}</button> <button class="secondary delete-record" data-id="${escapeHtml(r.id)}" style="padding:5px 8px;margin-top:5px;font-size:12px">${t('delete')}</button></div></div>`).join(''):`<div class="empty">${t('empty')}</div>`;
+ renderReport(list,inc,exp);
+ renderInsights(accountRecords);drawChart(accountRecords);updateBudget();applyRole();
+ renderOrders();
+}
+function chartGroups(list){
+ const mode=$('chartMode').value, now=new Date(), groups=new Map();
+ const add=(key,r)=>{const g=groups.get(key)||{income:0,expense:0};g[r.type]+=r.amount;groups.set(key,g)};
+ list.forEach(r=>{const d=new Date(r.date);if(mode==='day'){if(d.toDateString()===now.toDateString())add(`${String(d.getHours()).padStart(2,'0')}:00`,r)}else if(mode==='week'){const start=new Date(now);start.setHours(0,0,0,0);start.setDate(start.getDate()-(start.getDay()+6)%7);if(d>=start&&d<=now)add(d.toLocaleDateString('en-US',{weekday:'short'}),r)}else if(d.getFullYear()===now.getFullYear()){add(d.toLocaleDateString('en-US',{month:'short'}),r)}});
+ return [...groups.entries()];
+}
+function drawChart(list){const canvas=$('moneyChart'),ctx=canvas.getContext('2d'),data=chartGroups(list);ctx.clearRect(0,0,canvas.width,canvas.height);ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--muted');ctx.font='13px system-ui';if(!data.length){ctx.fillText(t('chartEmpty'),20,40);return}const max=Math.max(...data.flatMap(([,v])=>[v.income,v.expense]),1),barW=Math.max(18,(canvas.width-60)/data.length/3);data.forEach(([label,v],i)=>{const x=40+i*((canvas.width-60)/data.length),ih=v.income/max*150,eh=v.expense/max*150;ctx.fillStyle='#15803d';ctx.fillRect(x,175-ih,barW,ih);ctx.fillStyle='#b91c1c';ctx.fillRect(x+barW+4,175-eh,barW,eh);ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--muted');ctx.fillText(label,x,205)});ctx.fillStyle='#15803d';ctx.fillText(t('income'),20,18);ctx.fillStyle='#b91c1c';ctx.fillText(t('expense'),90,18)}
+function renderReport(list,inc,exp){
+ const period=$('period').value,labels=t('periods');
+ $('periodSummary').textContent=t('periodSummary')(labels[period],list.length,money(inc),money(exp),money(inc-exp));
+ const totals=new Map();
+ list.forEach(r=>{const item=totals.get(r.category)||{income:0,expense:0};item[r.type]+=r.amount;totals.set(r.category,item)});
+ const rows=[...totals.entries()].sort((a,b)=>(b[1].income+b[1].expense)-(a[1].income+a[1].expense));
+ $('categoryReport').innerHTML=rows.length?rows.map(([name,total])=>`<div class="report-row"><b>${escapeHtml(name)}</b><small>${t('categoryLine')(money(total.income),money(total.expense))}</small></div>`).join(''):`<div class="empty">${t('noReport')}</div>`;
+}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function resetForm(){editingId=null;receiptData='';receiptName='';$('transactionForm').reset();$('receiptPreview').hidden=true;$('date').value=localDateValue();renderCategories();$('transactionForm').querySelector('[type="submit"]').textContent=t('saveRecord');$('cancelEditBtn').hidden=true}
+function editRecord(id){const record=records.find(r=>r.id===id);if(!record)return;editingId=id;$('type').value=record.type;$('amount').value=record.amount;if(![...$('category').options].some(option=>option.value===record.category)){const option=document.createElement('option');option.value=record.category;option.textContent=record.category;$('category').append(option)}$('category').value=record.category;$('date').value=asLocalInput(record.date);$('description').value=record.description||'';receiptData=record.receipt||'';receiptName=record.receiptName||'';$('receiptPreview').src=receiptData;$('receiptPreview').hidden=!receiptData;$('transactionForm').querySelector('[type="submit"]').textContent=t('saveChanges');$('cancelEditBtn').hidden=false;window.scrollTo({top:0,behavior:'smooth'})}
+function removeRecord(id){if(currentRole()!=='admin'){setStatus(t('staffDeleteDenied'),true);return}if(!confirm(t('deleteConfirm')))return;try{save(records.filter(r=>r.id!==id));if(editingId===id)resetForm();setStatus(t('deleted'));render()}catch(error){setStatus(`Error: ${error.message}`,true)}}
+function validRecord(r){return r&&typeof r.id==='string'&&r.id.length>0&&r.id.length<=128&&['business','personal'].includes(r.account)&&['income','expense'].includes(r.type)&&Number.isSafeInteger(r.amount)&&r.amount>0&&typeof r.category==='string'&&r.category.trim().length>0&&r.category.length<=100&&typeof r.date==='string'&&!Number.isNaN(Date.parse(r.date))&&(r.description===undefined||typeof r.description==='string'&&r.description.length<=120)&&(r.receipt===undefined||typeof r.receipt==='string'&&r.receipt.length<900000)&&(r.receiptName===undefined||typeof r.receiptName==='string'&&r.receiptName.length<120)}
+function validOrder(o){return o&&typeof o.id==='string'&&o.id.length>0&&o.id.length<=128&&['business','personal'].includes(o.account)&&typeof o.customer==='string'&&o.customer.trim().length>0&&o.customer.length<=80&&typeof o.work==='string'&&o.work.trim().length>0&&o.work.length<=120&&Number.isSafeInteger(o.amount)&&o.amount>=0&&Number.isSafeInteger(o.deposit)&&o.deposit>=0&&['pending','progress','done','delivered','cancelled'].includes(o.status)&&(o.phone===undefined||typeof o.phone==='string'&&o.phone.length<=40)&&(o.due===undefined||o.due===''||typeof o.due==='string'&&!Number.isNaN(Date.parse(o.due)))&&(o.notes===undefined||typeof o.notes==='string'&&o.notes.length<=160)}
+function orderStatusLabel(status){return ({pending:t('statusPending'),progress:t('statusProgress'),done:t('statusDone'),delivered:t('statusDelivered'),cancelled:t('statusCancelled')})[status]||status}
+function resetOrderForm(){editingOrderId=null;$('orderForm').reset();$('orderForm').querySelector('[type="submit"]').textContent=t('saveOrder');$('cancelOrderEditBtn').hidden=true}
+function renderOrders(){const list=orders.filter(o=>o.account===account).sort((a,b)=>(a.due||'9999').localeCompare(b.due||'9999'));$('ordersList').innerHTML=list.length?list.map(o=>{const remain=Math.max(0,o.amount-o.deposit);return `<div class="transaction"><div><b>${escapeHtml(o.customer)}</b><small>${escapeHtml(o.work)} · ${orderStatusLabel(o.status)}${o.due?' · '+escapeHtml(o.due):''}<br>${escapeHtml(o.phone||'')} ${o.notes?'- '+escapeHtml(o.notes):''}</small></div><div class="amount">${money(o.amount)}<small>${t('remaining')}: ${money(remain)}</small><button class="secondary edit-order" data-id="${escapeHtml(o.id)}" style="padding:5px 8px;margin-top:5px;font-size:12px">${t('edit')}</button> <button class="secondary delete-order" data-id="${escapeHtml(o.id)}" style="padding:5px 8px;margin-top:5px;font-size:12px">${t('delete')}</button></div></div>`}).join(''):`<div class="empty">${t('noOrders')}</div>`}
+function editOrder(id){const o=orders.find(x=>x.id===id);if(!o)return;editingOrderId=id;$('orderCustomer').value=o.customer;$('orderPhone').value=o.phone||'';$('orderWork').value=o.work;$('orderAmount').value=o.amount;$('orderDeposit').value=o.deposit;$('orderDue').value=o.due||'';$('orderStatus').value=o.status;$('orderNotes').value=o.notes||'';$('orderForm').querySelector('[type="submit"]').textContent=t('saveOrderChanges');$('cancelOrderEditBtn').hidden=false;$('orderCustomer').scrollIntoView({behavior:'smooth',block:'center'})}
+function removeOrder(id){if(currentRole()!=='admin'){setStatus(t('staffDeleteDenied'),true);return}if(!confirm(t('deleteOrderConfirm')))return;try{saveOrders(orders.filter(o=>o.id!==id));if(editingOrderId===id)resetOrderForm();$('orderStatusMessage').textContent=t('orderDeleted');renderOrders()}catch(error){$('orderStatusMessage').textContent=`Error: ${error.message}`;$('orderStatusMessage').classList.add('error')}}
+document.querySelectorAll('[data-account]').forEach(b=>b.addEventListener('click',()=>{account=b.dataset.account;document.querySelectorAll('[data-account]').forEach(x=>x.classList.toggle('active',x===b));render()}));
+$('transactionForm').addEventListener('submit',e=>{e.preventDefault();const amount=Number($('amount').value);if(!Number.isSafeInteger(amount)||amount<=0){setStatus(t('invalidAmount'),true);return}
+ const date=new Date($('date').value);if(Number.isNaN(date.getTime())){setStatus(t('invalidDate'),true);return}
+ const previous=editingId?records.find(r=>r.id===editingId):null;
+ const updated={...previous,id:previous?previous.id:randomId(),account:previous?previous.account:account,type:$('type').value,amount,category:$('category').value,date:date.toISOString(),description:$('description').value.trim(),customer:$('transactionCustomer').value.trim(),product:$('transactionProduct').value.trim(),receipt:receiptData,receiptName};
+ try{save(previous?records.map(r=>r.id===editingId?updated:r):[...records,updated]);setStatus(previous?t('updated'):t('saved'));resetForm();render()}catch(error){setStatus(`Error: ${error.message}`,true)}
+});
+$('cancelEditBtn').addEventListener('click',resetForm);
+$('orderForm').addEventListener('submit',e=>{e.preventDefault();submitBusinessOrder()});
+$('cancelOrderEditBtn').addEventListener('click',()=>resetOrderForm());
+$('ordersList').addEventListener('click',e=>{const button=e.target.closest('button[data-id]');if(!button)return;if(button.classList.contains('edit-order'))editOrder(button.dataset.id);else if(button.classList.contains('delete-order'))removeOrder(button.dataset.id)});
+$('transactions').addEventListener('click',e=>{const button=e.target.closest('button[data-id]');if(!button)return;if(button.classList.contains('edit-record'))editRecord(button.dataset.id);else if(button.classList.contains('delete-record'))removeRecord(button.dataset.id)});
+$('receipt').addEventListener('change',async e=>{const file=e.target.files[0];if(!file)return;if(file.size>700000){setStatus(t('receiptTooLarge'),true);e.target.value='';return}receiptData=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=reject;reader.readAsDataURL(file)});receiptName=file.name;$('receiptPreview').src=receiptData;$('receiptPreview').hidden=false});
+$('chartMode').addEventListener('change',()=>render());
+$('saveBudgetBtn').addEventListener('click',()=>{const value=Number($('monthlyBudget').value)||0;const budgets=settings().budgets||{};budgets[account]={...(budgets[account]||{}),[currentMonthKey()]:value};saveSettings({budgets});updateBudget()});
+$('addCategoryBtn').addEventListener('click',()=>{if(currentRole()!=='admin')return;const value=$('newCategory').value.trim();if(!value)return;const cats=[...new Set([...getCategories(),value])];saveSettings({categories:cats});$('newCategory').value='';renderCategories();applyRole()});
+$('categoryList').addEventListener('click',e=>{const button=e.target.closest('.remove-category');if(!button||currentRole()!=='admin')return;const cats=getCategories().filter(c=>c!==button.dataset.category);saveSettings({categories:cats});renderCategories();applyRole()});
+
+$('search').addEventListener('input',()=>render());$('period').addEventListener('change',()=>{$('customDates').hidden=$('period').value!=='custom';render()});$('dateFrom').addEventListener('change',()=>render());$('dateTo').addEventListener('change',()=>render());
+['filterType','filterCategory','minAmount','maxAmount','receiptFilter'].forEach(id=>$(id).addEventListener('input',()=>render()));
+$('clearFiltersBtn').addEventListener('click',()=>{$('filterType').value='all';$('filterCategory').value='all';$('minAmount').value='';$('maxAmount').value='';$('receiptFilter').value='all';$('search').value='';render()});
+$('exportBtn').addEventListener('click',()=>exportBusinessBackup());
+$('csvBtn').addEventListener('click',()=>{const rows=[['Akaunti','Aina','Kiasi TSh','Kategoria','Tarehe','Maelezo'],...periodRecords(records.filter(r=>r.account===account)).map(r=>[r.account,r.type,r.amount,r.category,r.date,r.description])];const csv=rows.map(row=>row.map(csvCell).join(',')).join('\r\n');download('motec-ripoti.csv','\ufeff'+csv,'text/csv;charset=utf-8')});
+$('pdfBtn').addEventListener('click',()=>{const list=periodRecords(records.filter(r=>r.account===account)),inc=list.filter(r=>r.type==='income').reduce((s,r)=>s+r.amount,0),exp=list.filter(r=>r.type==='expense').reduce((s,r)=>s+r.amount,0);const rows=list.map(r=>`<tr><td>${escapeHtml(r.account)}</td><td>${escapeHtml(r.type)}</td><td>${money(r.amount)}</td><td>${escapeHtml(r.category)}</td><td>${new Date(r.date).toLocaleString()}</td><td>${escapeHtml(r.description||'')}</td></tr>`).join('');const win=open('','_blank');if(!win){setStatus('Ruhusu dirisha jipya kwa ripoti.',true);return}win.document.write(`<!doctype html><title>MO TEC Report</title><style>body{font-family:Arial,sans-serif;padding:24px}img{width:80px}table{width:100%;border-collapse:collapse;margin-top:18px}td,th{border:1px solid #ddd;padding:8px;font-size:12px}h1{color:#b91c1c}</style><img src="mo-tec-192-v2.png"><h1>${t('pdfTitle')}</h1><p>${t('pdfIncome')}: ${money(inc)} | ${t('pdfExpenses')}: ${money(exp)} | ${t('pdfBalance')}: ${money(inc-exp)}</p><table><thead><tr><th>Account</th><th>Type</th><th>Amount</th><th>Category</th><th>Date</th><th>Description</th></tr></thead><tbody>${rows}</tbody></table><script>print()<\/script>`);win.document.close()});
+function csvCell(value){let text=String(value??'');if(/^\s*[=+\-@]/.test(text))text="'"+text;return '"'+text.replace(/"/g,'""')+'"'}
+function download(name,data,type){try{const a=document.createElement('a');const url=URL.createObjectURL(new Blob([data],{type}));a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}catch(error){setStatus(`Imeshindikana kupakua faili: ${error.message}`,true)}}
+$('importBtn').addEventListener('click',()=>$('importFile').click());
+$('importFile').addEventListener('change',e=>importBusinessBackup(e));
+async function runDiagnostics(){
+ const lines=[`Toleo: ${APP_VERSION}`,`HTTPS/secure context: ${window.isSecureContext?'Ndiyo':'Hapana (fingerprint/PWA inahitaji HTTPS au localhost)'}`,`Hifadhi ya browser: ${storageLoadFailed?'HITILAFU ya kusoma':records.length+' miamala imesomwa'}`,`Uthibitishaji wa data: ${records.every(validRecord)?'Sawa':'HITILAFU'}`];
+ try{const db=localStorage.getItem(DB_KEY);if(db!==null&&!Array.isArray(JSON.parse(db)))throw new Error('Muundo wa data si array.');lines.push('Local storage: inasomeka')}catch(error){lines.push(`Local storage: HITILAFU (${error.message})`)}
+ const imageChecks=[['Logo ya lock screen',document.querySelector('.lock-logo')],['Logo ya header',$('developerPanel')&&document.querySelector('.brand-logo')],['Watermark',document.querySelector('.brand-watermark')]];
+ imageChecks.forEach(([label,image])=>lines.push(`${label}: ${image?.complete&&image.naturalWidth?'Sawa':'HITILAFU - picha haijapakia'}`));
+ try{const response=await fetch('manifest.json',{cache:'no-store'});if(!response.ok)throw new Error(`HTTP ${response.status}`);const manifest=await response.json();const results=await Promise.all(manifest.icons.map(async icon=>{const result=await fetch(icon.src,{cache:'no-store'});return result.ok?null:`${icon.src}: HTTP ${result.status}`}));const failed=results.filter(Boolean);lines.push(`Manifest na icons: ${failed.length?'HITILAFU - '+failed.join(', '):'Sawa'}`)}catch(error){lines.push(`Manifest/icons: ${location.protocol==='file:'?'Haijapimwa kwenye file://; hosti kwenye HTTPS':`HITILAFU (${error.message})`}`)}
+ if('serviceWorker'in navigator){try{const registration=await navigator.serviceWorker.getRegistration();lines.push(`Service worker: ${registration?.active?'Sawa (active)':registration?'Inasakinishwa':'Haijasajiliwa'}`)}catch(error){lines.push(`Service worker: HITILAFU (${error.message})`)}}else lines.push('Service worker: browser haiungi mkono');
+ try{const estimate=await navigator.storage?.estimate();if(estimate?.quota)lines.push(`Hifadhi iliyotumika: ${((estimate.usage||0)/1048576).toFixed(2)} MB / ${(estimate.quota/1048576).toFixed(0)} MB`)}catch(error){lines.push(`Kipimo cha storage: ${error.message}`)}
+ $('developerResults').textContent=lines.join('\n');updateBiometricUi()
+}
+async function updateApp(){if(!('serviceWorker'in navigator)||!window.isSecureContext){$('developerResults').textContent='Sasisho la PWA linahitaji HTTPS/localhost na browser inayounga mkono service worker.';return}try{const registration=await navigator.serviceWorker.getRegistration();if(!registration){$('developerResults').textContent='Service worker haijasajiliwa. Fungua app kutoka GitHub Pages/HTTPS, kisha jaribu tena.';return}await registration.update();$('developerResults').textContent=registration.waiting?'Sasisho jipya linasubiri; lifunge na kufungua app tena.':'Ukaguzi wa sasisho umekamilika. Ikiwa kulikuwa na sasisho, app italipokea kiotomatiki.'}catch(error){$('developerResults').textContent=`Imeshindikana kuangalia sasisho: ${error.message}`}}
+$('runDiagnosticsBtn').addEventListener('click',runDiagnostics);$('updateAppBtn').addEventListener('click',updateApp);
+$('languageSelect').addEventListener('change',e=>{saveSettings({lang:e.target.value});applyLanguage();if($('appShell').hidden)showLock(authMode)});
+$('themeToggle').addEventListener('click',()=>{saveSettings({theme:(settings().theme||'light')==='dark'?'light':'dark'});applyTheme()});
+$('insightsPanel').addEventListener('toggle',e=>saveSettings({insightsOpen:e.target.open}));
+$('chartsPanel').addEventListener('toggle',e=>saveSettings({chartsOpen:e.target.open}));
+$('ordersPanel').addEventListener('toggle',e=>saveSettings({ordersOpen:e.target.open}));
+$('managerPanel').addEventListener('toggle',e=>saveSettings({managerOpen:e.target.open}));
+
+
+</script>
+<script src="business.js"></script>
+<script src="ux.js"></script>
+<script src="chart-data.js"></script>
+<script src="luxury.js"></script>
+<script src="totals-data.js"></script>
+<script src="cumulative.js"></script>
+<script src="customer-data.js"></script>
+<script src="workspace.js"></script>
+<script src="notebook-notes.js"></script>
+<script src="developer-tools.js"></script>
+<script src="firebase-config.js"></script>
+<script src="firebase-cloud.js"></script>
+<script src="report-pdf.js"></script>
+<script src="reports.js"></script>
+<script src="fold-ui.js"></script>
+<script src="ui-icons.js"></script>
+<script src="ui-language.js"></script>
+</body></html>
+

@@ -1,0 +1,46 @@
+{
+  "name": "MO TEC Money Manager",
+  "short_name": "MO TEC Money",
+  "description": "Simamia mapato, matumizi, wateja, oda na Notebook ya MO TEC BUSINESS",
+  "lang": "sw",
+  "dir": "ltr",
+  "id": "./index.html",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": [
+    "standalone",
+    "fullscreen",
+    "minimal-ui",
+    "browser"
+  ],
+  "orientation": "portrait-primary",
+  "background_color": "#07101e",
+  "theme_color": "#b51e32",
+  "categories": [
+    "business",
+    "finance",
+    "productivity"
+  ],
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "mo-tec-192-v2.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "mo-tec-512-v2.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "mo-tec-maskable-512-v2.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
