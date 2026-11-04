@@ -1,0 +1,39 @@
+#apiConfigPanel{overflow:hidden}
+#apiConfigPanel>summary{display:flex;align-items:center;gap:10px;font-weight:700;cursor:pointer;padding:3px 0}
+#apiConfigPanel>summary::before{content:'▸';font-size:14px;opacity:.55}
+#apiConfigPanel[open]>summary::before{content:'▾'}
+#apiConfigPanel .api-tag{font-size:10px;letter-spacing:.08em;padding:4px 8px;border:1px solid #b91c1c33;border-radius:6px;color:#b91c1c;margin-left:auto}
+#apiConfigPanel .api-heading{margin:22px 0 12px}
+#apiConfigPanel h3{font-size:21px;margin:0 0 5px}
+#apiConfigPanel h4{font-size:15px;margin:0}
+#apiConfigPanel .api-heading p,#apiConfigPanel .api-muted{font-size:12px;line-height:1.6;opacity:.7;margin:6px 0 12px}
+#apiConfigPanel .api-auth{max-width:390px;padding:20px;border:1px solid #8883;border-radius:12px;margin:18px 0}
+#apiConfigPanel .api-auth>label{display:block;margin:15px 0}
+#apiConfigPanel .api-auth>button{width:100%;margin-top:4px}
+#apiConfigPanel form{display:block}
+#apiConfigPanel label{font-size:12px;line-height:1.5}
+#apiConfigPanel input,#apiConfigPanel select{width:100%;box-sizing:border-box;margin-top:6px;min-height:43px}
+#apiConfigPanel .api-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+#apiConfigPanel .api-wide{grid-column:1/-1}
+#apiConfigPanel .api-selectors{padding:16px 0;border-top:1px solid #8883;border-bottom:1px solid #8883;margin-bottom:20px}
+#apiConfigPanel .api-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:18px}
+#apiConfigPanel .api-actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:12px 0}
+#apiConfigPanel button{height:auto;align-self:center;min-height:40px}
+#apiConfigPanel button:disabled{opacity:.5}
+#apiConfigPanel .api-check{display:flex;align-items:center;gap:8px}
+#apiConfigPanel .api-check input{width:16px;min-height:16px;height:16px;margin:0}
+#apiConfigPanel .api-advanced,#apiConfigPanel .api-help{border-top:1px solid #8883;margin-top:18px;padding-top:14px}
+#apiConfigPanel .api-advanced summary,#apiConfigPanel .api-help summary{font-size:12px;font-weight:600;cursor:pointer;opacity:.75}
+#apiConfigPanel .api-advanced .api-grid{margin-top:16px}
+#apiConfigPanel .api-help p{font-size:12px;line-height:1.7;opacity:.7}
+#apiConfigPanel .api-footer{margin-top:20px}
+#apiConfigPanel .api-footer .primary{min-width:130px}
+#apiConfigPanel .api-danger{color:#b91c1c}
+#apiConfigPanel .api-status{font-size:12px;white-space:pre-wrap;overflow-wrap:anywhere;margin:12px 0 0}
+#apiConfigPanel .api-status:empty{display:none}
+#apiConfigPanel .api-backend-help{border:1px solid #8883;border-radius:10px;padding:14px;font-size:12px;margin:12px 0}
+#apiConfigPanel .api-backend-help p{margin:0 0 10px}
+#apiConfigPanel .api-backend-help code{display:block;padding:10px;background:#8881;border-radius:6px;user-select:all}
+#apiConfigPanel input:disabled{opacity:.5;cursor:not-allowed}
+#apiConfigPanel [hidden]{display:none!important}
+@media(max-width:600px){#apiConfigPanel .api-grid{grid-template-columns:1fr}#apiConfigPanel .api-auth{padding:16px}#apiConfigPanel .api-footer button{flex:1}#apiConfigPanel .api-toolbar{gap:6px}}
