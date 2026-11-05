@@ -50,7 +50,7 @@
   window.motecApi={enabled:()=>ready&&owner===cloud()?.user()&&!!model(),cancel:()=>controller?.abort(),async answer(message,onDelta,context){
    if(controller)throw Object.assign(Error('Subiri ombi la sasa.'),{code:'api/error'});
    const expected=cloud()?.user(),control=new AbortController();controller=control;
-   try{const response=await call('chat',{message,model:model(),context},control.signal),reader=response.body.getReader(),decoder=new TextDecoder();let buffer='',text='',done=false;
+   try{const response=await call('chat',{message,model:model(),context,ownerInstructions:window.motecAssistantOwner?.apiPrompt?.()||''},control.signal),reader=response.body.getReader(),decoder=new TextDecoder();let buffer='',text='',done=false;
     const consume=line=>{if(!line.trim())return;const item=JSON.parse(line);if(item.error)throw Error(item.error);if(item.delta){text+=item.delta;if(expected!==cloud()?.user())throw Error('Akaunti imebadilika.');onDelta?.(text);}if(item.done)done=true;};
     while(true){const part=await reader.read();if(part.done)break;buffer+=decoder.decode(part.value,{stream:true});let i;while((i=buffer.indexOf('\n'))>=0){consume(buffer.slice(0,i));buffer=buffer.slice(i+1);}}
     buffer+=decoder.decode();if(buffer.trim())consume(buffer);if(!done)throw Error('Jibu halijakamilika. Jaribu tena.');return text;

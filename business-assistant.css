@@ -85,3 +85,25 @@ main:has(#ux-ai:not([hidden])) #uxGuide{display:none}
 #ownerKnowledgeForm{display:flex;flex-direction:column;gap:12px}
 #ownerKnowledge{box-sizing:border-box;display:block;width:100%;min-height:200px;resize:vertical;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--field);color:var(--ink);font:inherit;font-size:15px;line-height:1.7}
 #ownerKnowledgeCount{font-size:12px;line-height:1.6;color:var(--muted);margin:0}
+
+/* Give the conversation the screen; keep secondary controls in its menus. */
+body:has(#ux-ai:not([hidden])) .app-shell>header{display:none}
+body:has(#ux-ai:not([hidden])) .business-brand,body:has(#ux-ai:not([hidden])) #luxConnection{display:none}
+main:has(#ux-ai:not([hidden]))>.tabs{display:none}
+main:has(#ux-ai:not([hidden])){padding:12px 16px}
+#businessAssistant{height:calc(var(--assistant-viewport,100dvh) - 110px);gap:8px;margin:0}
+#businessAssistant .assistant-heading{min-height:44px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+#businessAssistant .assistant-tools{gap:4px}
+#businessAssistant .assistant-tools button,#assistantOptions>summary,#assistantHistory>summary{min-width:44px;min-height:44px;padding:10px}
+#assistantSuggestions,#assistantWelcome>span{display:none!important}
+#assistantWelcome{padding:12px}
+#assistantWelcome h3{font-size:25px;font-weight:500}
+#assistantWelcome p{margin-bottom:0}
+#assistantMessages{padding:12px 0 16px;gap:20px}
+#businessAssistant .assistant-message.assistant{background:transparent;padding:6px 2px;max-width:min(96%,78ch);font-size:15px}
+#businessAssistant .assistant-message.user{max-width:85%;font-size:15px}
+#assistantStatus:empty,#assistantHistoryNotice:empty{display:none}
+#assistantClear{display:block;width:100%;text-align:left;margin-top:12px;border:0;background:var(--soft);color:var(--ink);font:inherit;font-size:13px;padding:12px;border-radius:10px}
+#assistantOptions .assistant-options{max-height:65dvh;overflow-y:auto}
+#ownerApiPrompt{box-sizing:border-box;width:100%;min-height:260px;resize:vertical;font:inherit;font-size:15px;line-height:1.7;padding:12px;background:var(--field);color:var(--ink);border:1px solid var(--line);border-radius:12px}
+@media(max-width:600px){main:has(#ux-ai:not([hidden])){padding:8px 12px}#businessAssistant{gap:6px}#assistantMessages{gap:16px}#assistantWelcome h3{font-size:23px}#assistantForm{border-radius:22px}}

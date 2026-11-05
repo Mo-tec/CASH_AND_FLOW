@@ -5,7 +5,7 @@
   "schemaVersion": 1,
   "version": "1.1.0",
   "appVersion": "2026.11.04.2",
-  "assetVersion": "motec-money-manager-v68",
+  "assetVersion": "motec-money-manager-v70",
   "verifiedAt": "2026-11-04",
   "features": [
     {

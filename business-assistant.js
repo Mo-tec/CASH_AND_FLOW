@@ -13,6 +13,7 @@
  const apiMode=document.createElement('label');apiMode.textContent='Njia ya kujibu';
  const modeSelect=document.createElement('select');modeSelect.id='assistantMode';modeSelect.add(new Option('MO AI · Data na miamala (ndani)','local'));modeSelect.add(new Option('Model ya API - Biashara na hali ya app','api'));apiMode.append(modeSelect);panel.querySelector('.assistant-options').prepend(apiMode);
  const apiSettings=document.createElement('button');apiSettings.type='button';apiSettings.textContent='API Configuration';apiSettings.onclick=()=>{window.moneyManagerUI?.go('more',true);const p=document.getElementById('apiConfigPanel');p.open=true;p.scrollIntoView({block:'start'});};panel.querySelector('.assistant-options').append(apiSettings);
+ const clearChat=panel.querySelector('#assistantClear');panel.querySelector('.assistant-options').append(clearChat);
  const cancelApi=document.createElement('button');cancelApi.type='button';cancelApi.textContent='Sitisha jibu';cancelApi.hidden=true;cancelApi.onclick=()=>window.motecApi?.cancel();panel.querySelector('#assistantForm').after(cancelApi);
  const el=id=>document.getElementById(id);let pending=null,busy=false,generation=0,lastQuery='',recovery='retry',retrying=false;
  let identityKnown=cloud.identity?cloud.identity().ready:true,conversationUid=cloud.user();
@@ -115,7 +116,7 @@
  function sizeChat(){
   const height=window.visualViewport?.height||window.innerHeight,offset=window.visualViewport?.offsetTop||0;
   panel.style.setProperty('--assistant-viewport',Math.round(height)+'px');
-  if(panel.getClientRects().length){const top=Math.max(12,panel.getBoundingClientRect().top-offset),nav=el('uxNav')?.offsetHeight||80;panel.style.height=Math.min(780,Math.max(240,height-top-nav-14))+'px';}
+  if(panel.getClientRects().length){const top=Math.max(12,panel.getBoundingClientRect().top-offset),nav=el('uxNav')?.offsetHeight||80;panel.style.height=Math.max(180,height-top-nav-14)+'px';}
   if(document.activeElement===el('assistantInput')&&matchMedia('(max-width:600px)').matches)requestAnimationFrame(()=>{const bottom=offset+height-(el('uxNav')?.offsetHeight||80)-12,send=el('assistantSend').getBoundingClientRect();if(send.bottom>bottom)window.scrollBy({top:send.bottom-bottom,behavior:'auto'});});
  }
 

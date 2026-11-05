@@ -34,6 +34,22 @@
   el('ownerKnowledge').addEventListener('input',preview);preview();const token=epoch;
   el('ownerKnowledgeForm').onsubmit=event=>{event.preventDefault();if(token!==epoch)return;try{const saved=store.save(el('ownerKnowledge').value);el('ownerKnowledgeSave').textContent='Maarifa yamehifadhiwa';status('Mada '+saved.count+' zimehifadhiwa. MO AI sasa anaweza kuzipata bila kubadilisha code.');}catch(error){status(error.message);}};
  }
+ function apiPrompt(){
+  const owner=scope();if(!owner)return '';
+  const value=localStorage.getItem('motec-api-instructions-v1:'+owner)||'';
+  if(value.length>12000)throw Error('Prompt ya API imezidi herufi 12000.');return value;
+ }
+ function addApiPromptEditor(){
+  const owner=scope(),token=epoch,view=document.createElement('section'),tab=document.createElement('button');
+  view.id='ownerApiPromptView';view.hidden=true;tab.type='button';tab.id='ownerApiPromptTab';tab.textContent='Prompt ya API';tab.setAttribute('role','tab');tab.setAttribute('aria-selected','false');
+  view.innerHTML='<form id="ownerApiPromptForm"><label for="ownerApiPrompt">Maelekezo yako kwa Model ya API</label><textarea id="ownerApiPrompt" rows="16" maxlength="12000" spellcheck="false"></textarea><p class="note">Bandika prompt yako hapa. Itatumwa kwa OpenRouter/Gemini pamoja na kila swali la API. Hii ni prompt ya kushirikisha model, tofauti na maelekezo ya siri yaliyosimbwa. Usiiwekee passwords au API keys. Huhifadhiwa kwenye browser hii kwa akaunti hii, bila usimbaji, na haisawazishwi kwenye vifaa vingine.</p><p class="note">Huongoza lugha, mtindo na uchambuzi; haiongezi data ambayo haijatumwa, internet tools, uwezo wa offline wa model, au ruhusa ya kubadilisha miamala. Prompt tupu hutumia mwongozo wa kawaida.</p><button class="primary" type="submit">Hifadhi prompt ya API</button><button class="secondary" id="ownerApiPromptLock" type="button">Funga sehemu hii</button><p id="ownerApiPromptStatus" role="status"></p></form>';
+  el('ownerBody').append(view);const tabs=el('ownerBody').querySelector('.owner-tabs');tabs.append(tab);
+  const otherTabs=[el('ownerPromptTab'),el('ownerKnowledgeTab')];for(const other of otherTabs)other.addEventListener('click',()=>{view.hidden=true;tab.setAttribute('aria-selected','false');});
+  tab.onclick=()=>{el('ownerPromptView').hidden=true;el('ownerKnowledgeView').hidden=true;for(const other of otherTabs)other.setAttribute('aria-selected','false');view.hidden=false;tab.setAttribute('aria-selected','true');};
+  try{el('ownerApiPrompt').value=apiPrompt();}catch(error){el('ownerApiPromptStatus').textContent=error.message;}
+  el('ownerApiPromptLock').onclick=close;
+  el('ownerApiPromptForm').onsubmit=event=>{event.preventDefault();if(token!==epoch||scope()!==owner||unlockedOwner!==owner||!vault)return;try{const text=el('ownerApiPrompt').value.trim();if(text.length>12000)throw Error('Kikomo ni herufi 12000.');localStorage.setItem('motec-api-instructions-v1:'+owner,text);el('ownerApiPromptStatus').textContent='Prompt imehifadhiwa. Itatumika kuanzia swali linalofuata la API.';}catch(error){el('ownerApiPromptStatus').textContent=error.message;}};
+ }
  function learnedAnswer(text){
   const owner=scope();if(!owner)return null;
   try{return knowledgeStore(owner).search(text);}catch{return {status:'unavailable'};}
@@ -47,7 +63,7 @@
 el('ownerLock').onclick=close;
   function preview(){try{const compiled=P.compile(el('ownerPrompt').value),box=el('ownerApplied');box.replaceChildren();for(const item of compiled.applied){const line=document.createElement('p');line.textContent=item;box.append(line);}if(compiled.unsupported.length){const line=document.createElement('p');line.className='warning';line.textContent='Maelekezo '+compiled.unsupported.length+' hayajatafsiriwa na engine ya sasa; hayatatekelezwa kiotomatiki.';box.append(line);}}catch(error){status(error.message);}}
   el('ownerPrompt').addEventListener('input',()=>{el('ownerInstructionsForm').querySelector('[type=submit]').textContent='Hifadhi maelekezo';preview();});preview();
-  addKnowledgeEditor();
+  addKnowledgeEditor();addApiPromptEditor();
   const token=epoch;timer=setTimeout(close,300000);
   el('ownerInstructionsForm').onsubmit=async event=>{event.preventDefault();const button=event.target.querySelector('[type=submit]');button.disabled=true;try{await vault.save(el('ownerPrompt').value);if(epoch!==token)return;apply();preview();button.textContent='Imehifadhiwa';status('Maelekezo yamehifadhiwa. Mipangilio inayotambuliwa inaanza kutumika sasa.');}catch(error){if(epoch===token)status(error.message);}finally{button.disabled=false;}};
  }
@@ -76,6 +92,6 @@ el('ownerLock').onclick=close;
  window.addEventListener('motec:cloud-user-changed',()=>{if(dialog.open||vault)close();apply();});window.addEventListener('motec:cloud-ready',apply);
  document.addEventListener('visibilitychange',()=>{if(document.hidden)close();});
  el('lockAppBtn')?.addEventListener('click',close);new MutationObserver(()=>{if(el('appShell').hidden)close();}).observe(el('appShell'),{attributes:true,attributeFilter:['hidden']});
- window.motecAssistantOwner={learnedAnswer,language:fallback=>{if(scope()!==scopeKey)apply();return preferences.language==='auto'?fallback:preferences.language;},greeting:()=>{if(scope()!==scopeKey)apply();return preferences.greeting;},requirePreview:()=>{if(scope()!==scopeKey)apply();return preferences.requirePreview;},format:text=>P.format(text,preferences)};
+ window.motecAssistantOwner={learnedAnswer,apiPrompt,language:fallback=>{if(scope()!==scopeKey)apply();return preferences.language==='auto'?fallback:preferences.language;},greeting:()=>{if(scope()!==scopeKey)apply();return preferences.greeting;},requirePreview:()=>{if(scope()!==scopeKey)apply();return preferences.requirePreview;},format:text=>P.format(text,preferences)};
  apply();
 })();
