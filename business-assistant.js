@@ -11,7 +11,7 @@
  <p id="assistantStatus" role="status" aria-live="polite"></p><p id="assistantHistoryNotice" role="status" hidden></p>`;
  document.getElementById('ux-ai').append(panel);
  const apiMode=document.createElement('label');apiMode.textContent='Njia ya kujibu';
- const modeSelect=document.createElement('select');modeSelect.id='assistantMode';modeSelect.add(new Option('MO AI · Data na miamala (ndani)','local'));modeSelect.add(new Option('Model ya API · Swali pekee, bila data','api'));apiMode.append(modeSelect);panel.querySelector('.assistant-options').prepend(apiMode);
+ const modeSelect=document.createElement('select');modeSelect.id='assistantMode';modeSelect.add(new Option('MO AI · Data na miamala (ndani)','local'));modeSelect.add(new Option('Model ya API - Biashara na hali ya app','api'));apiMode.append(modeSelect);panel.querySelector('.assistant-options').prepend(apiMode);
  const apiSettings=document.createElement('button');apiSettings.type='button';apiSettings.textContent='API Configuration';apiSettings.onclick=()=>{window.moneyManagerUI?.go('more',true);const p=document.getElementById('apiConfigPanel');p.open=true;p.scrollIntoView({block:'start'});};panel.querySelector('.assistant-options').append(apiSettings);
  const cancelApi=document.createElement('button');cancelApi.type='button';cancelApi.textContent='Sitisha jibu';cancelApi.hidden=true;cancelApi.onclick=()=>window.motecApi?.cancel();panel.querySelector('#assistantForm').after(cancelApi);
  const el=id=>document.getElementById(id);let pending=null,busy=false,generation=0,lastQuery='',recovery='retry',retrying=false;
@@ -134,7 +134,7 @@
    if(el('assistantMode')?.value==='api'){
     if(!window.motecApi?.enabled())throw Object.assign(Error('Fungua API Configuration, ingia na uchague config inayotumika kwanza.'),{code:'api/error'});
     cancelApi.hidden=false;const selectedUser=cloud.user();let draft=null;
-    try{const reply=await window.motecApi.answer(text,partial=>{if(token!==generation||cloud.user()!==selectedUser)return;if(!draft){draft=document.createElement('div');draft.className='assistant-message assistant';el('assistantMessages').append(draft);}draft.textContent=partial;scrollChat();});draft?.remove();if(token===generation&&cloud.user()===selectedUser)say(reply);}
+    try{const reply=await window.motecApi.answer(text,partial=>{if(token!==generation||cloud.user()!==selectedUser)return;if(!draft){draft=document.createElement('div');draft.className='assistant-message assistant';el('assistantMessages').append(draft);}draft.textContent=partial;scrollChat();},await window.motecBusinessContext.build(text,cloud));draft?.remove();if(token===generation&&cloud.user()===selectedUser)say(reply);}
     finally{draft?.remove();cancelApi.hidden=true;}
     return;
    }

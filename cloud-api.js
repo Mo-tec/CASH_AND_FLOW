@@ -22,7 +22,7 @@
  function mount(target){
   panel=target;
   panel.innerHTML=`<summary>API Configuration <span class="api-tag" id="cloudApiTag">AI CLOUD</span></summary>
-   <div class="api-heading"><h3 id="cloudApiTitle">AI · Simu na PC</h3><p>Key yako inabaki kwenye Secret ya Cloudflare.</p></div>
+   <div class="api-heading"><h3 id="cloudApiTitle">AI · Simu na PC</h3><p>Uchambuzi wa biashara na msaada wa app. Muhtasari wa data hutumwa kwa model unapouliza.</p></div>
    <p id="cloudApiState" class="api-muted">Unganisha akaunti yako</p>
    <div class="api-actions"><button id="cloudApiConnect" class="primary" type="button">Unganisha</button><button id="cloudApiSignIn" class="secondary" type="button">Ingia Firebase</button></div>
    <label>Model<input id="cloudApiModel" list="cloudApiModels" maxlength="120" placeholder="Chagua model ya free tier kutoka AI Studio"><datalist id="cloudApiModels"></datalist></label>
@@ -47,10 +47,10 @@
   });
   el('cloudApiList').onclick=()=>run(async()=>{const data=await call('models');if(data.provider)showProvider(data.provider);el('cloudApiModels').replaceChildren(...data.models.map(id=>new Option(id,id)));status(`${data.models.length} models zimepatikana. `+(provider==='OpenRouter'?'Models za bure pekee.':'Hakiki free tier kwenye AI Studio.'));});
   el('cloudApiTest').onclick=()=>run(async()=>{const selected=model();if(!selected)throw Error('Weka model ID kwanza.');status('Inapima…');const result=await call('test',{model:selected});if(result.provider)showProvider(result.provider);owner=cloud().user();ready=true;el('cloudApiState').textContent=provider+' Cloud imeunganishwa';el('cloudApiModel').value=result.model;el('cloudApiModel').dispatchEvent(new Event('change'));status('Connection iko sawa · '+result.model+(result.servedModel&&result.servedModel!==result.model?' · Imejibu: '+result.servedModel:''));});
-  window.motecApi={enabled:()=>ready&&owner===cloud()?.user()&&!!model(),cancel:()=>controller?.abort(),async answer(message,onDelta){
+  window.motecApi={enabled:()=>ready&&owner===cloud()?.user()&&!!model(),cancel:()=>controller?.abort(),async answer(message,onDelta,context){
    if(controller)throw Object.assign(Error('Subiri ombi la sasa.'),{code:'api/error'});
    const expected=cloud()?.user(),control=new AbortController();controller=control;
-   try{const response=await call('chat',{message,model:model()},control.signal),reader=response.body.getReader(),decoder=new TextDecoder();let buffer='',text='',done=false;
+   try{const response=await call('chat',{message,model:model(),context},control.signal),reader=response.body.getReader(),decoder=new TextDecoder();let buffer='',text='',done=false;
     const consume=line=>{if(!line.trim())return;const item=JSON.parse(line);if(item.error)throw Error(item.error);if(item.delta){text+=item.delta;if(expected!==cloud()?.user())throw Error('Akaunti imebadilika.');onDelta?.(text);}if(item.done)done=true;};
     while(true){const part=await reader.read();if(part.done)break;buffer+=decoder.decode(part.value,{stream:true});let i;while((i=buffer.indexOf('\n'))>=0){consume(buffer.slice(0,i));buffer=buffer.slice(i+1);}}
     buffer+=decoder.decode();if(buffer.trim())consume(buffer);if(!done)throw Error('Jibu halijakamilika. Jaribu tena.');return text;
