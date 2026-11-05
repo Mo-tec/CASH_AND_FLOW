@@ -13,6 +13,7 @@
  const apiMode=document.createElement('label');apiMode.textContent='Njia ya kujibu';
  const modeSelect=document.createElement('select');modeSelect.id='assistantMode';modeSelect.add(new Option('MO AI · Data na miamala (ndani)','local'));modeSelect.add(new Option('Model ya API - Biashara na hali ya app','api'));apiMode.append(modeSelect);panel.querySelector('.assistant-options').prepend(apiMode);
  const apiSettings=document.createElement('button');apiSettings.type='button';apiSettings.textContent='API Configuration';apiSettings.onclick=()=>{window.moneyManagerUI?.go('more',true);const p=document.getElementById('apiConfigPanel');p.open=true;p.scrollIntoView({block:'start'});};panel.querySelector('.assistant-options').append(apiSettings);
+ const promptSettings=document.createElement('button');promptSettings.id='assistantApiPrompt';promptSettings.type='button';promptSettings.textContent='Prompt yangu ya API';promptSettings.onclick=()=>{el('assistantOptions').open=false;window.motecAssistantOwner?.openApi();};panel.querySelector('.assistant-options').append(promptSettings);
  const clearChat=panel.querySelector('#assistantClear');panel.querySelector('.assistant-options').append(clearChat);
  const cancelApi=document.createElement('button');cancelApi.type='button';cancelApi.textContent='Sitisha jibu';cancelApi.hidden=true;cancelApi.onclick=()=>window.motecApi?.cancel();panel.querySelector('#assistantForm').after(cancelApi);
  const el=id=>document.getElementById(id);let pending=null,busy=false,generation=0,lastQuery='',recovery='retry',retrying=false;

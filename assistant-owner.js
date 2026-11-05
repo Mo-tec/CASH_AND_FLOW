@@ -2,7 +2,7 @@
 (()=>{
  const P=window.MotecAssistantPolicy,cloud=window.motecAssistantCloud,panel=document.getElementById('businessAssistant');
  const dialog=document.createElement('dialog');dialog.id='assistantOwnerDialog';dialog.setAttribute('aria-label','Maelekezo ya Mmiliki wa MO AI');document.body.append(dialog);
- let preferences=P.defaults(),scopeKey=null,vault=null,opening=false,epoch=0,timer=null,standalone=false,taps=0,lastTap=0,unlockedOwner=null;
+ let preferences=P.defaults(),scopeKey=null,vault=null,opening=false,epoch=0,timer=null,standalone=false,taps=0,lastTap=0,unlockedOwner=null,requestedApi=false;
  const el=id=>document.getElementById(id);
  function scope(){
   if(cloud.identity&&!cloud.identity().ready&&!standalone)return null;
@@ -63,11 +63,12 @@
 el('ownerLock').onclick=close;
   function preview(){try{const compiled=P.compile(el('ownerPrompt').value),box=el('ownerApplied');box.replaceChildren();for(const item of compiled.applied){const line=document.createElement('p');line.textContent=item;box.append(line);}if(compiled.unsupported.length){const line=document.createElement('p');line.className='warning';line.textContent='Maelekezo '+compiled.unsupported.length+' hayajatafsiriwa na engine ya sasa; hayatatekelezwa kiotomatiki.';box.append(line);}}catch(error){status(error.message);}}
   el('ownerPrompt').addEventListener('input',()=>{el('ownerInstructionsForm').querySelector('[type=submit]').textContent='Hifadhi maelekezo';preview();});preview();
-  addKnowledgeEditor();addApiPromptEditor();
+  addKnowledgeEditor();addApiPromptEditor();if(requestedApi)el('ownerApiPromptTab').click();
   const token=epoch;timer=setTimeout(close,300000);
   el('ownerInstructionsForm').onsubmit=async event=>{event.preventDefault();const button=event.target.querySelector('[type=submit]');button.disabled=true;try{await vault.save(el('ownerPrompt').value);if(epoch!==token)return;apply();preview();button.textContent='Imehifadhiwa';status('Maelekezo yamehifadhiwa. Mipangilio inayotambuliwa inaanza kutumika sasa.');}catch(error){if(epoch===token)status(error.message);}finally{button.disabled=false;}};
  }
- async function open(){
+ async function open(api=false){
+  requestedApi=api;
   if(opening||panel.getAttribute('aria-busy')==='true')return;opening=true;const token=epoch;
   try{
    try{await cloud.ready?.();}catch(error){if(cloud.user())throw error;standalone=true;}
@@ -92,6 +93,6 @@ el('ownerLock').onclick=close;
  window.addEventListener('motec:cloud-user-changed',()=>{if(dialog.open||vault)close();apply();});window.addEventListener('motec:cloud-ready',apply);
  document.addEventListener('visibilitychange',()=>{if(document.hidden)close();});
  el('lockAppBtn')?.addEventListener('click',close);new MutationObserver(()=>{if(el('appShell').hidden)close();}).observe(el('appShell'),{attributes:true,attributeFilter:['hidden']});
- window.motecAssistantOwner={learnedAnswer,apiPrompt,language:fallback=>{if(scope()!==scopeKey)apply();return preferences.language==='auto'?fallback:preferences.language;},greeting:()=>{if(scope()!==scopeKey)apply();return preferences.greeting;},requirePreview:()=>{if(scope()!==scopeKey)apply();return preferences.requirePreview;},format:text=>P.format(text,preferences)};
+ window.motecAssistantOwner={learnedAnswer,apiPrompt,openApi:()=>open(true),language:fallback=>{if(scope()!==scopeKey)apply();return preferences.language==='auto'?fallback:preferences.language;},greeting:()=>{if(scope()!==scopeKey)apply();return preferences.greeting;},requirePreview:()=>{if(scope()!==scopeKey)apply();return preferences.requirePreview;},format:text=>P.format(text,preferences)};
  apply();
 })();
