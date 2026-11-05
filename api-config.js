@@ -1,6 +1,8 @@
 'use strict';
 (()=>{
  const panel=document.createElement('details');panel.id='apiConfigPanel';panel.className='panel';
+ let mode;try{mode=sessionStorage.getItem('motec-api-mode');}catch{/* Default by host. */}
+ if(window.motecCloudApi&&(mode==='cloud'||mode!=='local'&&location.hostname==='mo-tec.github.io')){document.getElementById('ux-more').append(panel);window.motecCloudApi.mount(panel);return;}
  panel.innerHTML=`<summary>API Configuration <span class="api-tag">MO AI</span></summary>
  <div class="api-heading"><h3>Unganisha AI yako</h3><p>Chagua provider, weka key na model.</p></div>
  <p id="apiAvailability" class="api-muted" role="status">Inasubiri kukagua connection.</p>
@@ -27,6 +29,7 @@
  <details class="api-help"><summary>Msaada na usalama</summary><p>Password hii ni tofauti na PIN ya app. Keys huhifadhiwa kwa usimbaji fiche kwenye server. API hupokea swali unaloandika pekee.</p><p>Inahitaji backend ya localhost; GitHub Pages pekee haitoshi. Vikomo vya fedha huwekwa kwa provider.</p></details>
  <p id="apiStatus" class="api-status" role="status" aria-live="polite"></p>`;
  document.getElementById('ux-more').append(panel);
+ const cloudSwitch=document.createElement('button');cloudSwitch.type='button';cloudSwitch.className='secondary';cloudSwitch.textContent='Gemini Cloud · Simu na PC';cloudSwitch.onclick=()=>{sessionStorage.setItem('motec-api-mode','cloud');location.reload();};panel.querySelector('.api-heading').append(cloudSwitch);
  const el=id=>document.getElementById(id);let token='',config={profiles:[],selected:null,usage:{}},configured=null,checked=false,working=false,controller=null;
  const status=text=>{el('apiStatus').textContent=text;};
  function authView(){

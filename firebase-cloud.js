@@ -174,6 +174,13 @@
  };
  // Assistant uses the same authenticated snapshot service and atomic local commit.
  window.motecAssistantCloud = {
+  async idToken() {
+   await waitForAuth();
+   const current=requireUser(),s=await init();
+   const token=await s.authentication.currentUser.getIdToken();
+   if(requireUser().uid!==current.uid)throw Error('Akaunti imebadilika.');
+   return token;
+  },
   async source() {
    const s = await init(), current = requireUser();
    if (!navigator.onLine) throw Error('Assistant inahitaji mtandao / Internet connection required.');
